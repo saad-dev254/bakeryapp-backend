@@ -3,8 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateProfileSchema = exports.resetPasswordSchema = exports.forgotPasswordSchema = exports.changePasswordSchema = exports.adminCreateUserSchema = exports.loginSchema = void 0;
 const zod_1 = require("zod");
 exports.loginSchema = zod_1.z.object({
-    email: zod_1.z.string().email(),
-    password: zod_1.z.string().min(6)
+    phoneNumber: zod_1.z.string().min(11),
+    password: zod_1.z.string().min(6),
+    role: zod_1.z.enum(["ADMIN", "USER", "VENDOR", "RIDER"])
 });
 exports.adminCreateUserSchema = zod_1.z.object({
     email: zod_1.z.string().email(),

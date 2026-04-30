@@ -17,30 +17,38 @@ const auth_tokens_1 = require("./auth.tokens");
 const mail_service_1 = require("./mail.service");
 const env_1 = require("../../config/env");
 async function createUser(dto) {
-    const exists = await user_model_1.User.findOne({ email: dto.email.toLowerCase(), phoneNumber: dto.phoneNumber.toLowerCase() });
+    const exists = await user_model_1.User.findOne({
+        $or: [
+            { email: dto.email.toLowerCase() },
+            { phoneNumber: dto.phoneNumber }
+        ],
+        role: dto.role
+    });
     if (exists)
-        throw new httpError_1.HttpError(409, "Email or phone number already exists");
+        throw new httpError_1.HttpError(409, `Email or phone number already exists for this ${dto.role}`);
     const passwordHash = await (0, auth_tokens_1.hashValue)(dto.password);
     const user = await user_model_1.User.create({
         email: dto.email.toLowerCase(),
         name: dto.name,
         phoneNumber: dto.phoneNumber,
         role: dto.role,
-        isActive: dto.isActive ?? true,
+        isActive: dto.role === "VENDOR" || dto.role === "RIDER" ? false : true,
         passwordHash,
         createdBy: "self"
     });
     return sanitizeUser(user);
 }
 async function adminCreateUser(adminId, dto) {
-    const exists = await user_model_1.User.findOne({ email: dto.email.toLowerCase(), phoneNumber: dto.phoneNumber.toLowerCase() });
+    const exists = await user_model_1.User.findOne({
+        $or: [{ email: dto.email.toLowerCase() }, { phoneNumber: dto.phoneNumber.trim() }]
+    });
     if (exists)
         throw new httpError_1.HttpError(409, "Email or phone number already exists");
     const passwordHash = await (0, auth_tokens_1.hashValue)(dto.password);
     const user = await user_model_1.User.create({
         email: dto.email.toLowerCase(),
         name: dto.name,
-        phoneNumber: dto.phoneNumber,
+        phoneNumber: dto.phoneNumber.trim(),
         role: dto.role,
         isActive: dto.isActive ?? true,
         passwordHash,
@@ -49,14 +57,14 @@ async function adminCreateUser(adminId, dto) {
     return sanitizeUser(user);
 }
 async function login(dto) {
-    const user = await user_model_1.User.findOne({ email: dto.email.toLowerCase() });
+    const user = await user_model_1.User.findOne({ phoneNumber: dto.phoneNumber.trim(), role: dto.role });
     if (!user)
-        throw new httpError_1.HttpError(401, "Invalid email or password");
+        throw new httpError_1.HttpError(401, "Invalid phone number, role, or password");
     if (!user.isActive)
         throw new httpError_1.HttpError(403, "Account is disabled");
     const ok = await (0, auth_tokens_1.compareHash)(dto.password, user.passwordHash);
     if (!ok)
-        throw new httpError_1.HttpError(401, "Invalid email or password");
+        throw new httpError_1.HttpError(401, "Invalid phone number, role, or password");
     const payload = { sub: String(user._id), role: user.role, email: user.email };
     const accessToken = (0, auth_tokens_1.signAccessToken)(payload);
     const refreshToken = (0, auth_tokens_1.signRefreshToken)(payload);
@@ -152,6 +160,7 @@ function sanitizeUser(user) {
         id: String(user._id),
         email: user.email,
         name: user.name,
+        phoneNumber: user.phoneNumber,
         role: user.role,
         isActive: user.isActive,
         createdAt: user.createdAt,

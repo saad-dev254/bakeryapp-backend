@@ -55,7 +55,7 @@ exports.createUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     // const adminId = req.user!.id;
     const dto = auth_validation_1.adminCreateUserSchema.parse(req.body);
     const user = await AuthService.createUser(dto);
-    res.status(201).json({ success: true, message: "User created", data: user });
+    res.status(201).json({ success: true, message: `${dto.role} created`, data: user });
 });
 exports.adminCreateUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const adminId = req.user.id;
@@ -112,6 +112,13 @@ exports.me = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     res.json({ success: true, data: user });
 });
 exports.updateMe = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    // Disallow updating phoneNumber via this route
+    // if ('phoneNumber' in req.body) {
+    //   throw new HttpError(400, "Updating phoneNumber is not allowed");
+    // }
+    // if ('role' in req.body) {
+    //   throw new HttpError(400, "Updating role is not allowed");
+    // }
     const dto = auth_validation_1.updateProfileSchema.parse(req.body);
     const user = await AuthService.updateMe(req.user.id, dto);
     res.json({ success: true, message: "Profile updated", data: user });
