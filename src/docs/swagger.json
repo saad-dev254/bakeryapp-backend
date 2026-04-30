@@ -1,0 +1,811 @@
+{
+  "openapi": "3.0.0",
+  "info": { "title": "COD Platform API", "version": "1.0.0" },
+  "servers": [{ "url": "https://cod-platform.onrender.com" }],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    }
+  },
+  "security": [],
+  "tags": [
+    { "name": "Health", "description": "Health check endpoints" },
+    { "name": "Auth", "description": "Authentication and user management" },
+    { "name": "Products", "description": "Product management" },
+    { "name": "Categories", "description": "Category management" },
+    { "name": "Vendors", "description": "Vendor management" },
+    { "name": "Shipments", "description": "Shipment management and search" }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "example": "user@mail.com" },
+                  "password": { "type": "string", "example": "secret123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Refresh access token",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "refreshToken": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/auth/forgot-password": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Forgot password (send email)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": { "email": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Reset password via token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token", "newPassword"],
+                "properties": {
+                  "token": { "type": "string" },
+                  "newPassword": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Get my profile",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "OK" },
+          "401": { "description": "Unauthorized" }
+        }
+      },
+      "patch": {
+        "tags": ["Auth"],
+        "summary": "Update my profile",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "name": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OK" },
+          "401": { "description": "Unauthorized" }
+        }
+      },
+      "delete": {
+        "tags": ["Auth"],
+        "summary": "Delete my profile",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "OK" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Logout",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/auth/change-password": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Change password",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["currentPassword", "newPassword"],
+                "properties": {
+                  "currentPassword": { "type": "string" },
+                  "newPassword": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OK" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/auth/admin/users": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Admin creates a user",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "name", "password", "role"],
+                "properties": {
+                  "email": { "type": "string" },
+                  "name": { "type": "string" },
+                  "password": { "type": "string" },
+                  "role": { "type": "string", "enum": ["ADMIN", "USER"] },
+                  "isActive": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Created" },
+          "403": { "description": "Forbidden" }
+        }
+      }
+    },
+
+    "/api/add-product": {
+      "post": {
+        "tags": ["Products"],
+        "summary": "Create a product",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": { "type": "string" },
+                  "product_name": { "type": "string" },
+                  "category_id": { "type": "string" },
+                  "product_brand": { "type": "string" },
+                  "product_size": { "type": "string" },
+                  "product_color": { "type": "string" },
+                  "product_details": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Product created" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/update-product/{id}": {
+      "put": {
+        "tags": ["Products"],
+        "summary": "Update a product",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_name": { "type": "string" },
+                  "category_id": { "type": "string" },
+                  "category_name": { "type": "string" },
+                  "product_brand": { "type": "string" },
+                  "product_size": { "type": "string" },
+                  "product_color": { "type": "string" },
+                  "product_details": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Product updated" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/products": {
+      "post": {
+        "tags": ["Products"],
+        "summary": "List products (admin/user)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_type": { "type": "string", "example": "admin or user" },
+                  "user_id": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Products fetched" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        }
+      }
+    },
+    "/api/product/{id}": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get single product",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Product fetched" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Products"],
+        "summary": "Delete product",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Product deleted" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+
+    "/api/add-category": {
+      "post": {
+        "tags": ["Categories"],
+        "summary": "Create category",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category_name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Category created" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/update-category/{id}": {
+      "put": {
+        "tags": ["Categories"],
+        "summary": "Update category",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category_name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Category updated" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "List categories",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Categories fetched" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/category/{id}": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Get single category",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Category fetched" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Categories"],
+        "summary": "Delete category",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Category deleted" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+
+    "/api/add-vendor": {
+      "post": {
+        "tags": ["Vendors"],
+        "summary": "Create vendor",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": { "type": "string" },
+                  "last_name": { "type": "string" },
+                  "email": { "type": "string" },
+                  "phone": { "type": "string" },
+                  "address": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Vendor created" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/update-vendor/{id}": {
+      "put": {
+        "tags": ["Vendors"],
+        "summary": "Update vendor",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": { "type": "string" },
+                  "last_name": { "type": "string" },
+                  "email": { "type": "string" },
+                  "phone": { "type": "string" },
+                  "address": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Vendor updated" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/vendors": {
+      "get": {
+        "tags": ["Vendors"],
+        "summary": "List vendors",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Vendors fetched" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/vendor/{id}": {
+      "get": {
+        "tags": ["Vendors"],
+        "summary": "Get single vendor",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Vendor fetched" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Vendors"],
+        "summary": "Delete vendor",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Vendor deleted" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+
+    "/api/add-shipment": {
+      "post": {
+        "tags": ["Shipments"],
+        "summary": "Create shipment",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": { "type": "string" },
+                  "reference": { "type": "string" },
+                  "receiver_name": { "type": "string" },
+                  "country": { "type": "string" },
+                  "delivery_service": { "type": "string" },
+                  "city": { "type": "string" },
+                  "customer_address": { "type": "string" },
+                  "national_address": { "type": "string" },
+                  "location_coordinates": { "type": "string" },
+                  "customer_email": { "type": "string" },
+                  "contact_number": { "type": "string" },
+                  "whatsApp_number": { "type": "string" },
+                  "cod_amount": { "type": "string" },
+                  "branded_items": { "type": "string" },
+                  "custom_duty": { "type": "string" },
+                  "goods_description": { "type": "string" },
+                  "insurance": { "type": "string" },
+                  "reforward_shipment": { "type": "string" },
+                  "warehousing_location": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Shipment created" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/update-shipment/{id}": {
+      "put": {
+        "tags": ["Shipments"],
+        "summary": "Update shipment",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reference": { "type": "string" },
+                  "receiver_name": { "type": "string" },
+                  "country": { "type": "string" },
+                  "delivery_service": { "type": "string" },
+                  "city": { "type": "string" },
+                  "customer_address": { "type": "string" },
+                  "national_address": { "type": "string" },
+                  "location_coordinates": { "type": "string" },
+                  "customer_email": { "type": "string" },
+                  "contact_number": { "type": "string" }, 
+                  "whatsApp_number": { "type": "string" },
+                  "cod_amount": { "type": "string" },
+                  "branded_items": { "type": "string" },
+                  "custom_duty": { "type": "string" },
+                  "goods_description": { "type": "string" },
+                  "insurance": { "type": "string" },
+                  "reforward_shipment": { "type": "string" },
+                  "warehousing_location": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Shipment updated" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/shipments": {
+      "post": {
+        "tags": ["Shipments"],
+        "summary": "List shipments",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_type": { "type": "string", "example": "admin or user" },
+                  "user_id": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Shipments fetched" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/shipment/{id}": {
+      "get": {
+        "tags": ["Shipments"],
+        "summary": "Get single shipment",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Shipment fetched" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Shipments"],
+        "summary": "Delete shipment",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Shipment deleted" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/search-shipment": {
+      "post": {
+        "tags": ["Shipments"],
+        "summary": "Search shipments",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Provide any one of 'reference_number', 'customer_name', or 'contact_number' to search for a shipment. Only one of these is required per search.",
+                "properties": {
+                  "reference_number": { "type": "string", "description": "Shipment reference number" },
+                  "customer_name": { "type": "string", "description": "Receiver/customer name" },
+                  "contact_number": { "type": "string", "description": "Receiver/contact phone number" },
+                  "user_type": { "type": "string", "example": "admin or user", "description": "User role for access control" },
+                  "user_id": { "type": "string", "description": "User ID (required if user_type is 'user')" }
+                },
+                "anyOf": [
+                  { "required": ["reference_number"] },
+                  { "required": ["customer_name"] },
+                  { "required": ["contact_number"] }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Shipments search result" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/search-shipment-by-date": {
+      "post": {
+        "tags": ["Shipments"],
+        "summary": "Search shipments by date",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "start_date": { "type": "string" },
+                  "end_date": { "type": "string" },
+                  "user_type": { "type": "string", "example": "admin or user", "description": "User role for access control" },
+                  "user_id": { "type": "string", "description": "User ID (required if user_type is 'user')" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Shipments filtered by date" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/shipment-status-counts": {
+      "post": {
+        "tags": ["Shipments"],
+        "summary": "Get shipment status counts",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_type": { "type": "string", "example": "admin or user", "description": "User role for access control" },
+                  "user_id": { "type": "string", "description": "User ID (required if user_type is 'user')" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Shipment status counts" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    }
+  }
+}
