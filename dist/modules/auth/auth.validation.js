@@ -13,7 +13,8 @@ exports.adminCreateUserSchema = zod_1.z.object({
     phoneNumber: zod_1.z.string().min(11).max(11),
     password: zod_1.z.string().min(6),
     role: zod_1.z.enum(["ADMIN", "USER", "VENDOR", "RIDER"]).default("USER"),
-    isActive: zod_1.z.boolean().optional()
+    isActive: zod_1.z.boolean().optional(),
+    isProfileComplete: zod_1.z.boolean().optional()
 });
 exports.changePasswordSchema = zod_1.z.object({
     currentPassword: zod_1.z.string().min(6),
@@ -27,5 +28,6 @@ exports.resetPasswordSchema = zod_1.z.object({
     newPassword: zod_1.z.string().min(6)
 });
 exports.updateProfileSchema = zod_1.z.object({
-    name: zod_1.z.string().min(2).optional()
+    name: zod_1.z.string().min(2).optional(),
+    isProfileComplete: zod_1.z.boolean().optional()
 });

@@ -1,13 +1,14 @@
 import { Router } from "express";
 import authenticateToken from "../../middlewares/auth";
-import { createProduct, deleteProduct, getAllProducts, getSingleProduct, updateProduct } from "./product.controller";
+import { createVendor, deleteVendor, getAllVendors, getSingleVendor, updateVendor } from "./vendor.controller";
 import { requireAuth } from "../auth/auth.middleware";
 
-export const productRouter = Router();
+export const vendorRouter = Router();
 
 // protected
-productRouter.post("/add-product", authenticateToken, createProduct);
-productRouter.put("/update-product/:id", authenticateToken, updateProduct);
-productRouter.post("/products", authenticateToken, getAllProducts);
-productRouter.get("/product/:id", authenticateToken, getSingleProduct);
-productRouter.delete("/product/:id", authenticateToken, deleteProduct);
+vendorRouter.post("/add-vendor", requireAuth, createVendor);
+vendorRouter.put("/update-vendor", requireAuth, updateVendor);
+vendorRouter.get("/all-vendors", requireAuth, getAllVendors);
+vendorRouter.put("/get-vendor-detail", requireAuth, getSingleVendor);
+vendorRouter.delete("/delete-vendor", authenticateToken, deleteVendor);
+  

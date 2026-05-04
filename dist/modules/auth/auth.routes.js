@@ -20,7 +20,7 @@ exports.authRouter.post("/reset-password", auth_controller_1.resetPassword); // 
 exports.authRouter.get("/me", auth_middleware_1.requireAuth, auth_controller_1.me); // working fine 
 exports.authRouter.patch("/me", auth_middleware_1.requireAuth, auth_controller_1.updateMe); // working fine 
 exports.authRouter.delete("/me", auth_middleware_1.requireAuth, auth_controller_1.deleteMe); // working fine 
-exports.authRouter.post("/logout", auth_middleware_1.requireAuth, auth_controller_1.logout); // working fine 
+exports.authRouter.post("/logout", auth_middleware_1.requireAuth, auth_controller_1.logout); // working fine
 exports.authRouter.post("/change-password", auth_middleware_1.requireAuth, auth_controller_1.changePassword); // working fine 
 // admin-only: admin creates users
 exports.authRouter.post("/admin/users", auth_middleware_1.requireAuth, (0, auth_middleware_1.requireRole)("ADMIN"), auth_controller_1.adminCreateUser);

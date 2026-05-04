@@ -12,7 +12,8 @@ export const adminCreateUserSchema = z.object({
   phoneNumber: z.string().min(11).max(11),
   password: z.string().min(6),
   role: z.enum(["ADMIN", "USER", "VENDOR", "RIDER"]).default("USER"),
-  isActive: z.boolean().optional()
+  isActive: z.boolean().optional(),
+  isProfileComplete: z.boolean().optional()
 });
 
 export const changePasswordSchema = z.object({
@@ -30,5 +31,6 @@ export const resetPasswordSchema = z.object({
 });
 
 export const updateProfileSchema = z.object({
-  name: z.string().min(2).optional()
+  name: z.string().min(2).optional(),
+  isProfileComplete: z.boolean().optional()
 });

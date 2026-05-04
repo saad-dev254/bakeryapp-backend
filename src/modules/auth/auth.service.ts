@@ -20,6 +20,7 @@ export async function createUser(
     password: string;
     role: "ADMIN" | "USER" | "VENDOR" | "RIDER";
     isActive?: boolean;
+    isProfileComplete?: boolean;
   }
 ) {
   const exists = await User.findOne({ 
@@ -38,7 +39,8 @@ export async function createUser(
     name: dto.name,
     phoneNumber: dto.phoneNumber,
     role: dto.role,
-    isActive: dto.role === "VENDOR" || dto.role === "RIDER" ? false : true,
+    isActive: true,
+    isProfileComplete: dto.role === "VENDOR" || dto.role === "RIDER" ? false : true,
     passwordHash,
     createdBy: "self"
   });
@@ -55,6 +57,7 @@ export async function adminCreateUser(
     password: string;
     role: "ADMIN" | "USER" | "VENDOR" | "RIDER";
     isActive?: boolean;
+    isProfileComplete?: boolean;
   }
 ) {
   const exists = await User.findOne({
@@ -70,6 +73,7 @@ export async function adminCreateUser(
     phoneNumber: dto.phoneNumber.trim(),
     role: dto.role,
     isActive: dto.isActive ?? true,
+    isProfileComplete: dto.isProfileComplete ?? true,
     passwordHash,
     createdBy: adminId
   });
@@ -186,11 +190,12 @@ export async function getMe(userId: string) {
   return sanitizeUser(user);
 }
 
-export async function updateMe(userId: string, dto: { name?: string }) {
+export async function updateMe(userId: string, dto: { name?: string; isProfileComplete?: boolean }) {
   const user = await User.findById(userId);
   if (!user) throw new HttpError(404, "User not found");
 
   if (dto.name) user.name = dto.name;
+  if (dto.isProfileComplete !== undefined) user.isProfileComplete = dto.isProfileComplete;
 
   await user.save();
   return sanitizeUser(user);
@@ -210,6 +215,7 @@ function sanitizeUser(user: any) {
     phoneNumber: user.phoneNumber,
     role: user.role,
     isActive: user.isActive,
+    isProfileComplete: user.isProfileComplete,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt
   };

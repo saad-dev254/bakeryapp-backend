@@ -41,6 +41,7 @@ const UserSchema = new mongoose_1.Schema({
     phoneNumber: { type: String, required: true, trim: true },
     role: { type: String, enum: ["ADMIN", "USER", "VENDOR", "RIDER"], default: "USER", required: true },
     isActive: { type: Boolean, default: true },
+    isProfileComplete: { type: Boolean, default: true },
     passwordHash: { type: String, required: true },
     passwordChangedAt: { type: Date },
     refreshTokenHash: { type: String },

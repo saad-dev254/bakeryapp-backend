@@ -6,9 +6,9 @@ import { requireAuth } from "../auth/auth.middleware";
 export const vendorRouter = Router();
 
 // protected
-vendorRouter.post("/add-vendor", authenticateToken, createVendor);
-vendorRouter.put("/update-vendor/:id", authenticateToken, updateVendor);
-vendorRouter.get("/vendors", authenticateToken, getAllVendors);
-vendorRouter.get("/vendor/:id", authenticateToken, getSingleVendor);
-vendorRouter.delete("/vendor/:id", authenticateToken, deleteVendor);
+vendorRouter.post("/add-vendor", requireAuth, createVendor);
+vendorRouter.put("/update-vendor", requireAuth, updateVendor);
+vendorRouter.get("/all-vendors", requireAuth, getAllVendors);
+vendorRouter.put("/get-vendor-detail", requireAuth, getSingleVendor);
+vendorRouter.delete("/delete-vendor", authenticateToken, deleteVendor);
   

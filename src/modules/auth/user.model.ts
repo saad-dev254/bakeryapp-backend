@@ -8,7 +8,7 @@ export interface IUser {
   phoneNumber: string;
   role: UserRole;
   isActive: boolean;
-
+  isProfileComplete: boolean;
   passwordHash: string;
   passwordChangedAt?: Date;
 
@@ -29,7 +29,7 @@ const UserSchema = new Schema<IUser>(
     phoneNumber: { type: String, required: true, trim: true },
     role: { type: String, enum: ["ADMIN", "USER", "VENDOR", "RIDER"], default: "USER", required: true },
     isActive: { type: Boolean, default: true },
-
+    isProfileComplete: { type: Boolean, default: true },
     passwordHash: { type: String, required: true },
     passwordChangedAt: { type: Date },
 

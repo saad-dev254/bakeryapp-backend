@@ -31,7 +31,7 @@ authRouter.get("/me", requireAuth, me); // working fine
 authRouter.patch("/me", requireAuth, updateMe); // working fine 
 authRouter.delete("/me", requireAuth, deleteMe); // working fine 
 
-authRouter.post("/logout", requireAuth, logout);  // working fine 
+authRouter.post("/logout", requireAuth, logout);  // working fine
 authRouter.post("/change-password", requireAuth, changePassword); // working fine 
 
 // admin-only: admin creates users
