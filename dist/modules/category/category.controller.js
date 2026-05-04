@@ -1,162 +1,64 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCategory = exports.getSingleCategory = exports.getAllCategories = exports.updateCategory = exports.createCategory = void 0;
+exports.deleteCategory = exports.getSingleCategory = exports.getAllCategory = exports.updateCategory = exports.createCategory = void 0;
 const asyncHandler_1 = require("../../utils/asyncHandler");
-const category_model_1 = __importDefault(require("./category.model"));
-// Validation function for category fields
-function validateCategoryFields(body, type = "create") {
-    const { category_name } = body;
-    if (!category_name || typeof category_name !== "string" || category_name.trim() === "") {
-        return false;
-    }
-    return true;
-}
-;
-// POST / CREATE category
+const CategoryService = __importStar(require("./category.service"));
+const category_validation_1 = require("./category.validation");
 exports.createCategory = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    // Validate required fields for creating a category
-    if (!validateCategoryFields(req.body, "create")) {
-        return res.status(400).json({
-            code: 400,
-            status: false,
-            message: "Category name must not be blank",
-        });
-    }
-    try {
-        const newCategory = new category_model_1.default(req.body);
-        const savedCategory = await newCategory.save();
-        res.status(200).json({
-            code: 200,
-            status: true,
-            message: "Category added successfully",
-            data: savedCategory
-        });
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({
-            code: 500,
-            status: false,
-            message: "Category added failed",
-        });
-    }
+    const dto = category_validation_1.createCategorySchema.parse(req.body);
+    const category = await CategoryService.createCategory(dto);
+    res.status(201).json({ success: true, message: `Category created`, data: category });
 });
-// PUT (update) category by ID
 exports.updateCategory = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { id } = req.params;
-    // Validate required fields for updating a category
-    // if (!validateCategoryFields(req.body, "create")) {
-    //     return res.status(400).json({
-    //         code: 400,
-    //         status: false,
-    //         message: "Category name must not be blank",
-    //     });
-    // }
-    const { category_name } = req.body;
-    try {
-        const updatedCategory = await category_model_1.default.findByIdAndUpdate(id, {
-            category_name,
-            updated_at: new Date()
-        }, { new: true, runValidators: true });
-        if (!updatedCategory) {
-            return res.status(404).json({
-                code: 404,
-                status: false,
-                message: "Category not found",
-            });
-        }
-        res.status(200).json({
-            code: 200,
-            status: true,
-            message: "Category updated successfully",
-            data: updatedCategory,
-        });
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({
-            code: 500,
-            status: false,
-            message: "Failed to update Category",
-        });
-    }
+    const { id } = req.body;
+    const dto = category_validation_1.updateCategorySchema.parse(req.body);
+    const category = await CategoryService.updateCategory(id, dto);
+    res.json({ success: true, message: "Category updated", data: category });
 });
-// GET all categories
-exports.getAllCategories = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    try {
-        const categories = await category_model_1.default.find(); // Fetch all Categories from MongoDB
-        res.status(200).json({
-            code: 200,
-            status: true,
-            message: "Categories fetched successfully",
-            data: categories,
-        });
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({
-            code: 500,
-            status: false,
-            message: "Failed to fetch categories",
-        });
-    }
+exports.getAllCategory = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const category = await CategoryService.getAllCategory();
+    res.json({ success: true, data: category });
 });
-// GET single category by ID
 exports.getSingleCategory = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { id } = req.params;
-    try {
-        const category = await category_model_1.default.findById(id);
-        if (!category) {
-            return res.status(404).json({
-                code: 404,
-                status: false,
-                message: "Category not found",
-            });
-        }
-        res.status(200).json({
-            code: 200,
-            status: true,
-            message: "Category fetched successfully",
-            data: category,
-        });
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({
-            code: 500,
-            status: false,
-            message: "Failed to fetch category",
-        });
-    }
+    const { id } = req.body;
+    const category = await CategoryService.getSingleCategory(id);
+    res.json({ success: true, data: category });
 });
-// DELETE single category by ID
 exports.deleteCategory = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { id } = req.params;
-    try {
-        const deletedCategory = await category_model_1.default.findByIdAndDelete(id);
-        if (!deletedCategory) {
-            return res.status(404).json({
-                code: 404,
-                status: false,
-                message: "Category not found",
-            });
-        }
-        res.status(200).json({
-            code: 200,
-            status: true,
-            message: "Category deleted successfully",
-            // data: deletedCategory,
-        });
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({
-            code: 500,
-            status: false,
-            message: "Failed to delete Category",
-        });
-    }
+    const { id } = req.body;
+    await CategoryService.deleteCategory(id);
+    res.json({ success: true, message: "Category deleted" });
 });

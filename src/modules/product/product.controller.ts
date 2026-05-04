@@ -1,68 +1,37 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler";
-import Vendors from "./product.model";
 import { AuthRequest } from "../auth/auth.middleware";
-import * as VendorService from "./vendor.service";
-import { createVendorSchema, updateVendorSchema } from "./vendor.validation";
+import * as ProductService from "./product.service";
+import { createProductSchema, updateProductSchema } from "./product.validation";
 
-export const createVendor = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const createProduct = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { vendorId } = req.body;
-    const dto = createVendorSchema.parse(req.body);
-    const vendor = await VendorService.createVendor(vendorId, dto);
-    res.status(201).json({ success: true, message: `Vendor created`, data: vendor });
+    const dto = createProductSchema.parse(req.body);
+    const product = await ProductService.createProduct(vendorId, dto);
+    res.status(201).json({ success: true, message: `Product created`, data: product });
 });
 
-export const updateVendor = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const updateProduct = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.body;
-    const dto = updateVendorSchema.parse(req.body);
-    const vendor = await VendorService.updateVendor(id, dto);
-    res.json({ success: true, message: "Profile updated", data: vendor });
+    const dto = updateProductSchema.parse(req.body);
+    const product = await ProductService.updateProduct(id, dto);
+    res.json({ success: true, message: "Product updated", data: product });
 });
 
-export const getAllVendors = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const vendors = await VendorService.getAllVendors();
-    res.json({ success: true, data: vendors });
+export const getAllProducts = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { vendorId } = req.body;
+    const products = await ProductService.getAllProducts(vendorId);
+    res.json({ success: true, data: products });
 });
 
-export const getSingleVendor = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const getSingleProduct = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.body;
-    const vendor = await VendorService.getSingleVendor(id);
-    res.json({ success: true, data: vendor });
+    const product = await ProductService.getSingleProduct(id);
+    res.json({ success: true, data: product });
 });
 
-export const deleteVendor = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const deleteProduct = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.body;
-    await VendorService.deleteVendor(id);
-    res.json({ success: true, message: "Vendor deleted" });
+    await ProductService.deleteProduct(id);
+    res.json({ success: true, message: "Product deleted" });
 });
-
-// // DELETE single vendor by ID
-// export const deleteVendor = asyncHandler(async (req: Request, res: Response) => {
-//     const { id } = req.params;
-
-//     try {
-//         const deletedVendor = await Vendors.findByIdAndDelete(id);
-
-//         if (!deletedVendor) {
-//             return res.status(404).json({
-//                 code: 404,
-//                 status: false,
-//                 message: "Vendor not found",
-//             });
-//         }
-
-//         res.status(200).json({
-//             code: 200,
-//             status: true,
-//             message: "Vendor deleted successfully",
-//             // data: deletedVendor,
-//         });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({
-//             code: 500,
-//             status: false,
-//             message: "Failed to delete vendor",
-//         });
-//     }
-// });

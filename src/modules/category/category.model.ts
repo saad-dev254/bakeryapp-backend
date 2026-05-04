@@ -1,13 +1,13 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface ICategory extends Document {
-    category_name: string;
+    categoryName: string;
     created_at: Date;
     updated_at: Date;
 }
 
 const categorySchema: Schema = new mongoose.Schema({
-    category_name: { type: String, required: true },
+    categoryName: { type: String, required: true },
     created_at: { type: Date, default: Date },
     updated_at: { type: Date, default: Date },
 });

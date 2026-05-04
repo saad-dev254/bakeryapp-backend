@@ -20,6 +20,7 @@ const auth_routes_1 = require("./modules/auth/auth.routes");
 const vendors_routes_1 = require("./modules/vendor/vendors.routes");
 const product_routes_1 = require("./modules/product/product.routes");
 const category_routes_1 = require("./modules/category/category.routes");
+const addOns_routes_1 = require("./modules/addOns/addOns.routes");
 const shipment_routes_1 = require("./modules/shipment/shipment.routes");
 const country_routes_1 = require("./modules/country/country.routes");
 const delivery_routes_1 = require("./modules/deliver-services/delivery.routes");
@@ -48,7 +49,7 @@ function createApp() {
     app.use("/docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_json_1.default));
     app.use("/api/health", health_routes_1.healthRouter);
     app.use("/api/auth", auth_routes_1.authRouter);
-    app.use("/api", vendors_routes_1.vendorRouter, product_routes_1.productRouter, category_routes_1.categoryRouter, shipment_routes_1.shipmentRouter, country_routes_1.countryRouter, delivery_routes_1.deliveryRouter, city_routes_1.cityRouter);
+    app.use("/api", vendors_routes_1.vendorRouter, product_routes_1.productRouter, category_routes_1.categoryRouter, addOns_routes_1.addOnRouter, shipment_routes_1.shipmentRouter, country_routes_1.countryRouter, delivery_routes_1.deliveryRouter, city_routes_1.cityRouter);
     app.use(notFound_1.notFound);
     app.use(errorHandler_1.errorHandler);
     return app;

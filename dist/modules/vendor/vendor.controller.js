@@ -32,169 +32,61 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteVendor = exports.getSingleVendor = exports.getAllVendors = exports.updateVendor = exports.createVendor = void 0;
 const asyncHandler_1 = require("../../utils/asyncHandler");
-const vendor_model_1 = __importDefault(require("./vendor.model"));
 const VendorService = __importStar(require("./vendor.service"));
 const vendor_validation_1 = require("./vendor.validation");
 exports.createVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    console.log("req.body =====> ", req.body);
+    const { vendorId } = req.body;
     const dto = vendor_validation_1.createVendorSchema.parse(req.body);
-    console.log("dto ===> ", dto);
-    const user = await VendorService.createVendor(req.body.vendorId, dto);
-    res.status(201).json({ success: true, message: `Vendor created`, data: user });
+    const vendor = await VendorService.createVendor(vendorId, dto);
+    res.status(201).json({ success: true, message: `Vendor created`, data: vendor });
 });
-// POST / CREATE vendor
-// export const createVendor = asyncHandler(async (req: Request, res: Response) => {
-//     const { userId, vendorName, vendorEmail, vendorMobileNo, vendorDesignation, vendorCnicNumber, bakeryImage, bakeryName, 
-//     bakeryAddress, bakeryLatitude, bakeryLongitude, openingTime, closingTime, bakeryType, preOrder, deliveryTime } = req.body;
-//     console.log(req.body)
+exports.updateVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { id } = req.body;
+    const dto = vendor_validation_1.updateVendorSchema.parse(req.body);
+    const vendor = await VendorService.updateVendor(id, dto);
+    res.json({ success: true, message: "Profile updated", data: vendor });
+});
+exports.getAllVendors = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const vendors = await VendorService.getAllVendors();
+    res.json({ success: true, data: vendors });
+});
+exports.getSingleVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { id } = req.body;
+    const vendor = await VendorService.getSingleVendor(id);
+    res.json({ success: true, data: vendor });
+});
+exports.deleteVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { id } = req.body;
+    await VendorService.deleteVendor(id);
+    res.json({ success: true, message: "Vendor deleted" });
+});
+// // DELETE single vendor by ID
+// export const deleteVendor = asyncHandler(async (req: Request, res: Response) => {
+//     const { id } = req.params;
 //     try {
-//         const data = { userId, vendorName, vendorEmail, vendorMobileNo, vendorDesignation, vendorCnicNumber, bakeryImage, bakeryName, 
-//         bakeryAddress, bakeryLatitude, bakeryLongitude, openingTime, closingTime, bakeryType, preOrder, deliveryTime };
-//         // Check if vendorMobileNo or userId already exists, if so, don't add and show error
-//         const exists = await Vendors.findOne({
-//             $or: [
-//                 { userId: userId },
-//                 { vendorMobileNo: vendorMobileNo }
-//             ]
-//         });
-//         if (exists) throw new HttpError(409, "Vendor already exists");
-//         console.log("exists ====> ", exists);
-//         const newVendor = new Vendors(data);
-//         const savedVendor = await newVendor.save();
-//         // After successfully adding the vendor, update the corresponding user's isProfileComplete to true
-//         try {
-//             await User.findByIdAndUpdate(
-//                 userId,
-//                 { isProfileComplete: true },
-//                 { new: true }
-//             );
-//         } catch (userUpdateErr) {
-//             // Log the error but do not fail vendor creation if user profile update fails
-//             console.error("Failed to update user's isProfileComplete:", userUpdateErr);
+//         const deletedVendor = await Vendors.findByIdAndDelete(id);
+//         if (!deletedVendor) {
+//             return res.status(404).json({
+//                 code: 404,
+//                 status: false,
+//                 message: "Vendor not found",
+//             });
 //         }
 //         res.status(200).json({
 //             code: 200,
 //             status: true,
-//             message: "Vendor added successfully", 
-//             data: savedVendor
+//             message: "Vendor deleted successfully",
+//             // data: deletedVendor,
 //         });
 //     } catch (err) {
 //         console.error(err);
 //         res.status(500).json({
 //             code: 500,
 //             status: false,
-//             message: "Vendor added failed",
+//             message: "Failed to delete vendor",
 //         });
 //     }
 // });
-// PUT (update) vendor by ID
-exports.updateVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { id } = req.params;
-    const { first_name, last_name, phone, address } = req.body;
-    try {
-        const updatedVendor = await vendor_model_1.default.findByIdAndUpdate(id, { first_name, last_name, phone, address, updated_at: new Date() }, { new: true, runValidators: true });
-        if (!updatedVendor) {
-            return res.status(404).json({
-                code: 404,
-                status: false,
-                message: "Vendor not found",
-            });
-        }
-        res.status(200).json({
-            code: 200,
-            status: true,
-            message: "Vendor updated successfully",
-            data: updatedVendor,
-        });
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({
-            code: 500,
-            status: false,
-            message: "Failed to update vendor",
-        });
-    }
-});
-// GET all vendors
-exports.getAllVendors = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    try {
-        const vendors = await vendor_model_1.default.find(); // Fetch all vendors from MongoDB
-        res.status(200).json({
-            code: 200,
-            status: true,
-            message: "Vendors fetched successfully",
-            data: vendors,
-        });
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({
-            code: 500,
-            status: false,
-            message: "Failed to fetch vendors",
-        });
-    }
-});
-// GET single vendor by ID
-exports.getSingleVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { id } = req.params;
-    try {
-        const vendor = await vendor_model_1.default.findById(id);
-        if (!vendor) {
-            return res.status(404).json({
-                code: 404,
-                status: false,
-                message: "Vendor not found",
-            });
-        }
-        res.status(200).json({
-            code: 200,
-            status: true,
-            message: "Vendor fetched successfully",
-            data: vendor,
-        });
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({
-            code: 500,
-            status: false,
-            message: "Failed to fetch vendor",
-        });
-    }
-});
-// DELETE single vendor by ID
-exports.deleteVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { id } = req.params;
-    try {
-        const deletedVendor = await vendor_model_1.default.findByIdAndDelete(id);
-        if (!deletedVendor) {
-            return res.status(404).json({
-                code: 404,
-                status: false,
-                message: "Vendor not found",
-            });
-        }
-        res.status(200).json({
-            code: 200,
-            status: true,
-            message: "Vendor deleted successfully",
-            // data: deletedVendor,
-        });
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({
-            code: 500,
-            status: false,
-            message: "Failed to delete vendor",
-        });
-    }
-});

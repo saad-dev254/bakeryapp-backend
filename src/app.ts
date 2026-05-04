@@ -16,6 +16,7 @@ import { authRouter } from "./modules/auth/auth.routes";
 import { vendorRouter } from "./modules/vendor/vendors.routes";
 import { productRouter } from "./modules/product/product.routes";
 import { categoryRouter } from "./modules/category/category.routes";
+import { addOnRouter } from "./modules/addOns/addOns.routes";
 import { shipmentRouter } from "./modules/shipment/shipment.routes";
 import { countryRouter } from "./modules/country/country.routes";
 import { deliveryRouter } from "./modules/deliver-services/delivery.routes";
@@ -56,7 +57,7 @@ export function createApp() {
 
   app.use("/api/health", healthRouter);
   app.use("/api/auth", authRouter);
-  app.use("/api", vendorRouter, productRouter, categoryRouter, shipmentRouter, countryRouter, deliveryRouter, cityRouter);
+  app.use("/api", vendorRouter, productRouter, categoryRouter, addOnRouter, shipmentRouter, countryRouter, deliveryRouter, cityRouter);
 
   app.use(notFound);
   app.use(errorHandler);
