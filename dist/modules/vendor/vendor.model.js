@@ -35,11 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const vendorsSchema = new mongoose_1.default.Schema({
-    vendorId: { type: mongoose_1.Schema.Types.ObjectId, required: true, unique: true },
-    vendorName: { type: String, required: true },
-    // vendorEmail: { type: String, required: true, unique: true },
-    vendorEmail: { type: String, required: true, lowercase: true, trim: true },
-    vendorMobileNo: { type: String, required: true },
+    vendorId: { type: mongoose_1.Schema.Types.ObjectId, required: true, unique: true, ref: "User" },
     vendorDesignation: { type: String, required: true },
     vendorCnicNumber: { type: String, required: true },
     bakeryImage: { type: String, required: true },

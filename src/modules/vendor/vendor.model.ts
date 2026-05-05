@@ -2,9 +2,6 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IVendor extends Document {
     vendorId?: mongoose.Types.ObjectId;
-    vendorName: string;
-    vendorEmail: string;
-    vendorMobileNo?: string;
     vendorDesignation?: string;
     vendorCnicNumber?: string;
     bakeryImage?: string;
@@ -23,11 +20,7 @@ export interface IVendor extends Document {
 }
 
 const vendorsSchema: Schema = new mongoose.Schema({
-    vendorId: { type: Schema.Types.ObjectId, required: true, unique: true },
-    vendorName: { type: String, required: true },
-    // vendorEmail: { type: String, required: true, unique: true },
-    vendorEmail: { type: String, required: true, lowercase: true, trim: true },
-    vendorMobileNo: { type: String, required: true },
+    vendorId: { type: Schema.Types.ObjectId, required: true, unique: true, ref: "User" },
     vendorDesignation: { type: String, required: true },
     vendorCnicNumber: { type: String, required: true },
     bakeryImage: { type: String, required: true },

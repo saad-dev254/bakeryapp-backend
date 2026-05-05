@@ -2,9 +2,6 @@ import { z } from "zod";
 
 export const createVendorSchema = z.object({
     vendorId: z.string().min(2),
-    vendorEmail: z.string().email(),
-    vendorName: z.string().min(2),
-    vendorMobileNo: z.string().min(11),
     vendorCnicNumber: z.string().min(13),
     vendorDesignation: z.string().min(2),
     bakeryImage: z.string().min(2),
@@ -18,7 +15,7 @@ export const createVendorSchema = z.object({
     preOrder: z.string().min(2),
     deliveryTime: z.string().min(2),
     status: z.string().min(2),
-});
+}); 
 
 export const updateVendorSchema = z.object({
     vendorName: z.string().min(2).optional(),

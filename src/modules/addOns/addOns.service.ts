@@ -1,17 +1,23 @@
 import { HttpError } from "../../utils/httpError";
 import AddOn from "./addOns.model";
 
-export async function createAddOn(dto: { addOnName?: string; addOnPrice?: string }) {
+export async function createAddOn(vendorId: string, dto: { addOnName?: string; addOnPrice?: string }) {
   const addOn = await AddOn.create({
+    vendorId: vendorId,
     addOnName: dto.addOnName,
-    addOnPrice: dto.addOnPrice
+    addOnPrice: dto.addOnPrice,
   });
 
   return sanitizeAddOn(addOn);
 }
 
-export async function getAllAddOn() {
-  const addOn = await AddOn.find();
+export async function getAllAddOn(vendorId?: string | null) {
+  let addOn;
+  if (vendorId) {
+    addOn = await AddOn.find({ vendorId });
+  } else {
+    addOn = await AddOn.find();
+  }
   if (!addOn || addOn.length === 0) throw new HttpError(404, "No AddOn found.");
   return addOn.map(sanitizeAddOn);
 }
@@ -41,6 +47,7 @@ export async function deleteAddOn(id: string) {
 function sanitizeAddOn(addOn: any) {
   return {
     id: String(addOn._id),
+    vendorId: String(addOn.vendorId),
     addOnName: addOn.addOnName,
     addOnPrice: addOn.addOnPrice,
   };

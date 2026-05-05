@@ -37,13 +37,34 @@ exports.deleteVendor = exports.getSingleVendor = exports.getAllVendors = exports
 const asyncHandler_1 = require("../../utils/asyncHandler");
 const VendorService = __importStar(require("./vendor.service"));
 const vendor_validation_1 = require("./vendor.validation");
+const env_1 = require("../../config/env");
 exports.createVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const uploadedFile = req.file;
+    if (uploadedFile) {
+        req.body.bakeryImage = `${env_1.env.APP_URL}/uploads/vendors/${uploadedFile.filename}`;
+    }
+    if (typeof req.body.bakeryLatitude === "string") {
+        req.body.bakeryLatitude = Number(req.body.bakeryLatitude);
+    }
+    if (typeof req.body.bakeryLongitude === "string") {
+        req.body.bakeryLongitude = Number(req.body.bakeryLongitude);
+    }
     const { vendorId } = req.body;
     const dto = vendor_validation_1.createVendorSchema.parse(req.body);
     const vendor = await VendorService.createVendor(vendorId, dto);
     res.status(201).json({ success: true, message: `Vendor created`, data: vendor });
 });
 exports.updateVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const uploadedFile = req.file;
+    if (uploadedFile) {
+        req.body.bakeryImage = `${env_1.env.APP_URL}/uploads/vendors/${uploadedFile.filename}`;
+    }
+    if (typeof req.body.bakeryLatitude === "string") {
+        req.body.bakeryLatitude = Number(req.body.bakeryLatitude);
+    }
+    if (typeof req.body.bakeryLongitude === "string") {
+        req.body.bakeryLongitude = Number(req.body.bakeryLongitude);
+    }
     const { id } = req.body;
     const dto = vendor_validation_1.updateVendorSchema.parse(req.body);
     const vendor = await VendorService.updateVendor(id, dto);

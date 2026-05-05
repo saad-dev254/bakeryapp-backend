@@ -11,6 +11,7 @@ const compression_1 = __importDefault(require("compression"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const pino_http_1 = __importDefault(require("pino-http"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
+const path_1 = __importDefault(require("path"));
 const env_1 = require("./config/env");
 const logger_1 = require("./utils/logger");
 const notFound_1 = require("./middlewares/notFound");
@@ -27,6 +28,7 @@ const delivery_routes_1 = require("./modules/deliver-services/delivery.routes");
 const city_routes_1 = require("./modules/city/city.routes");
 // ✅ JSON swagger import
 const swagger_json_1 = __importDefault(require("./docs/swagger.json"));
+const order_routes_1 = require("./modules/order/order.routes");
 function createApp() {
     const app = (0, express_1.default)();
     app.set("trust proxy", 1);
@@ -39,6 +41,7 @@ function createApp() {
     app.use((0, compression_1.default)());
     app.use(express_1.default.json({ limit: "1mb" }));
     app.use(express_1.default.urlencoded({ extended: true }));
+    app.use("/uploads", express_1.default.static(path_1.default.join(process.cwd(), "uploads")));
     app.use((0, express_rate_limit_1.default)({
         windowMs: env_1.env.RATE_LIMIT_WINDOW_MS,
         max: env_1.env.RATE_LIMIT_MAX,
@@ -49,7 +52,7 @@ function createApp() {
     app.use("/docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_json_1.default));
     app.use("/api/health", health_routes_1.healthRouter);
     app.use("/api/auth", auth_routes_1.authRouter);
-    app.use("/api", vendors_routes_1.vendorRouter, product_routes_1.productRouter, category_routes_1.categoryRouter, addOns_routes_1.addOnRouter, shipment_routes_1.shipmentRouter, country_routes_1.countryRouter, delivery_routes_1.deliveryRouter, city_routes_1.cityRouter);
+    app.use("/api", vendors_routes_1.vendorRouter, product_routes_1.productRouter, category_routes_1.categoryRouter, addOns_routes_1.addOnRouter, order_routes_1.orderRouter, shipment_routes_1.shipmentRouter, country_routes_1.countryRouter, delivery_routes_1.deliveryRouter, city_routes_1.cityRouter);
     app.use(notFound_1.notFound);
     app.use(errorHandler_1.errorHandler);
     return app;

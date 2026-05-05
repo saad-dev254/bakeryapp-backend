@@ -1,11 +1,9 @@
 import { HttpError } from "../../utils/httpError";
+import { User } from "../auth/user.model";
 import Vendors from "./vendor.model";
 
 export async function createVendor(vendorId: string,
 dto: { 
-    vendorName?: string;
-    vendorEmail?: string;
-    vendorMobileNo?: string;
     vendorDesignation?: string;
     vendorCnicNumber?: string;
     bakeryImage?: string;
@@ -22,18 +20,13 @@ dto: {
 }) {
   const exists = await Vendors.findOne({ 
     $or: [
-        { vendorId: vendorId }, 
-        { vendorEmail: dto.vendorEmail?.toLowerCase() }, 
-        { vendorMobileNo: dto.vendorMobileNo }
+        { vendorId: vendorId }
     ],
   });
-  if (exists) throw new HttpError(409, `Vendor already exists for this vendor id, email or phone number.`);
+  if (exists) throw new HttpError(409, `Vendor already exists for this vendor id.`);
 
   const vendor = await Vendors.create({
     vendorId: vendorId,
-    vendorEmail: dto.vendorEmail?.toLowerCase(),
-    vendorName: dto.vendorName,
-    vendorMobileNo: dto.vendorMobileNo,
     vendorDesignation: dto.vendorDesignation,
     vendorCnicNumber: dto.vendorCnicNumber,
     bakeryImage: dto.bakeryImage,
@@ -53,13 +46,13 @@ dto: {
 }
 
 export async function getAllVendors() {
-    const vendors = await Vendors.find();
+    const vendors = await Vendors.find().populate("vendorId", "name email phoneNumber");
     if (!vendors || vendors.length === 0) throw new HttpError(404, "No vendors found");
     return vendors.map(sanitizeVendor);
 }
 
 export async function getSingleVendor(id: string) {
-  const vendor = await Vendors.findById(id);
+  const vendor = await Vendors.findById(id).populate("vendorId", "name email phoneNumber");
   if (!vendor) throw new HttpError(404, "Vendor not found");
   return sanitizeVendor(vendor);
 }
@@ -83,7 +76,10 @@ dto: {
   const vendor = await Vendors.findById(id);
   if (!vendor) throw new HttpError(404, "Vendor not found");
 
-  if (dto.vendorName) vendor.vendorName = dto.vendorName;
+  if (dto.vendorName) {
+    await User.findByIdAndUpdate(vendor.vendorId, { name: dto.vendorName });
+  }
+
   if (dto.vendorDesignation) vendor.vendorDesignation = dto.vendorDesignation;
   if (dto.bakeryImage) vendor.bakeryImage = dto.bakeryImage;
   if (dto.bakeryName) vendor.bakeryName = dto.bakeryName;
@@ -97,7 +93,9 @@ dto: {
   if (dto.status) vendor.status = dto.status;
 
   await vendor.save();
-  return sanitizeVendor(vendor);
+  const updatedVendor = await Vendors.findById(id).populate("vendorId", "name email phoneNumber");
+  if (!updatedVendor) throw new HttpError(404, "Vendor not found");
+  return sanitizeVendor(updatedVendor);
 }
 
 export async function deleteVendor(vendorId: string) {
@@ -106,12 +104,16 @@ export async function deleteVendor(vendorId: string) {
 }
 
 function sanitizeVendor(user: any) {
+  const vendorUser = user.vendorId && typeof user.vendorId === "object"
+    ? user.vendorId
+    : null;
+
   return {
     id: String(user._id),
-    vendorId: String(user.vendorId),
-    vendorName: user.vendorName,
-    vendorEmail: user.vendorEmail,
-    vendorMobileNo: user.vendorMobileNo,
+    vendorId: vendorUser ? String(vendorUser._id) : String(user.vendorId),
+    vendorName: vendorUser?.name,
+    vendorEmail: vendorUser?.email,
+    vendorMobileNo: vendorUser?.phoneNumber,
     vendorDesignation: user.vendorDesignation,
     vendorCnicNumber: user.vendorCnicNumber,
     bakeryImage: user.bakeryImage,

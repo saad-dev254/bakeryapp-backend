@@ -9,7 +9,8 @@ export interface IProduct extends Document {
     discountAmount?: string;
     discountType?: string;
     categoryId?: mongoose.Types.ObjectId;
-    addOnIds?: mongoose.Types.ObjectId[];
+    created_at: Date;
+    updated_at: Date;
 }
 
 const productsSchema: Schema = new mongoose.Schema({
@@ -20,8 +21,9 @@ const productsSchema: Schema = new mongoose.Schema({
     productPrice: { type: String, required: true },
     discountAmount: { type: String },
     discountType: { type: String },
-    categoryId: { type: Schema.Types.ObjectId, required: true },
-    addOnIds: [{ type: Schema.Types.ObjectId }],
+    categoryId: { type: Schema.Types.ObjectId, required: true, ref: "Category" },
+    created_at: { type: Date, default: Date },
+    updated_at: { type: Date, default: Date },
 });
 
 const Products: Model<IProduct> = mongoose.model<IProduct>("Products", productsSchema);

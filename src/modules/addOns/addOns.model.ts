@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 export interface IAddOn extends Document {
     addOnName: string;
     addOnPrice: string;
+    vendorId?: mongoose.Types.ObjectId;
     created_at: Date;
     updated_at: Date;
 }
@@ -10,6 +11,7 @@ export interface IAddOn extends Document {
 const addOnSchema: Schema = new mongoose.Schema({
     addOnName: { type: String, required: true },
     addOnPrice: { type: String, required: true },
+    vendorId: { type: Schema.Types.ObjectId, required: true, unique: true },
     created_at: { type: Date, default: Date },
     updated_at: { type: Date, default: Date },
 });

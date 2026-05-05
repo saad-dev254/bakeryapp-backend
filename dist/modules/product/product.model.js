@@ -42,8 +42,9 @@ const productsSchema = new mongoose_1.default.Schema({
     productPrice: { type: String, required: true },
     discountAmount: { type: String },
     discountType: { type: String },
-    categoryId: { type: mongoose_1.Schema.Types.ObjectId, required: true },
-    addOnIds: [{ type: mongoose_1.Schema.Types.ObjectId }],
+    categoryId: { type: mongoose_1.Schema.Types.ObjectId, required: true, ref: "Category" },
+    created_at: { type: Date, default: Date },
+    updated_at: { type: Date, default: Date },
 });
 const Products = mongoose_1.default.model("Products", productsSchema);
 exports.default = Products;

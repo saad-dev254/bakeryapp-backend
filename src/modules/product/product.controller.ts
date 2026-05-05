@@ -3,8 +3,13 @@ import { asyncHandler } from "../../utils/asyncHandler";
 import { AuthRequest } from "../auth/auth.middleware";
 import * as ProductService from "./product.service";
 import { createProductSchema, updateProductSchema } from "./product.validation";
+import { env } from "../../config/env";
 
 export const createProduct = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const uploadedFile = (req as Request & { file?: Express.Multer.File }).file;
+    if (uploadedFile) {
+        req.body.productImage = `${env.APP_URL}/uploads/products/${uploadedFile.filename}`;
+    }
     const { vendorId } = req.body;
     const dto = createProductSchema.parse(req.body);
     const product = await ProductService.createProduct(vendorId, dto);
@@ -12,6 +17,10 @@ export const createProduct = asyncHandler(async (req: AuthRequest, res: Response
 });
 
 export const updateProduct = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const uploadedFile = (req as Request & { file?: Express.Multer.File }).file;
+    if (uploadedFile) {
+        req.body.productImage = `${env.APP_URL}/uploads/products/${uploadedFile.filename}`;
+    }
     const { id } = req.body;
     const dto = updateProductSchema.parse(req.body);
     const product = await ProductService.updateProduct(id, dto);
@@ -19,8 +28,7 @@ export const updateProduct = asyncHandler(async (req: AuthRequest, res: Response
 });
 
 export const getAllProducts = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { vendorId } = req.body;
-    const products = await ProductService.getAllProducts(vendorId);
+    const products = await ProductService.getAllProducts(req.body?.vendorId);
     res.json({ success: true, data: products });
 });
 

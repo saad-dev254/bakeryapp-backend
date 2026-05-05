@@ -5,8 +5,9 @@ import * as AddOnService from "./addOns.service";
 import { createAddOnSchema, updateAddOnSchema } from "./addOns.validation";
 
 export const createAddOn = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { vendorId } = req.body;
     const dto = createAddOnSchema.parse(req.body);
-    const addOn = await AddOnService.createAddOn(dto);
+    const addOn = await AddOnService.createAddOn(vendorId, dto);
     res.status(201).json({ success: true, message: `AddOn created`, data: addOn });
 });
 
@@ -18,7 +19,7 @@ export const updateAddOn = asyncHandler(async (req: AuthRequest, res: Response) 
 });
 
 export const getAllAddOn = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const addOn = await AddOnService.getAllAddOn();
+    const addOn = await AddOnService.getAllAddOn(req.body?.vendorId);
     res.json({ success: true, data: addOn });
 });
 
