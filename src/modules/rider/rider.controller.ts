@@ -6,10 +6,15 @@ import { createRiderSchema, updateRiderSchema } from "./rider.validation";
 import { env } from "../../config/env";
 
 export const createRider = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const uploadedFile = (req as Request & { file?: Express.Multer.File }).file;
-    if (uploadedFile) {
-        req.body.riderImage = `${env.APP_URL}/uploads/riders/${uploadedFile.filename}`;
-    }
+    const files = (req as Request & { files?: Record<string, Express.Multer.File[]> }).files;
+    const riderImage = files?.riderImage?.[0];
+    const riderCnicFrontImage = files?.riderCnicFrontImage?.[0];
+    const riderCnicBackImage = files?.riderCnicBackImage?.[0];
+
+    if (riderImage) req.body.riderImage = `${env.APP_URL}/uploads/riders/${riderImage.filename}`;
+    if (riderCnicFrontImage) req.body.riderCnicFrontImage = `${env.APP_URL}/uploads/riders/${riderCnicFrontImage.filename}`;
+    if (riderCnicBackImage) req.body.riderCnicBackImage = `${env.APP_URL}/uploads/riders/${riderCnicBackImage.filename}`;
+
     const { riderId } = req.body;
     const dto = createRiderSchema.parse(req.body);
     const rider = await RiderService.createRider(riderId, dto);
@@ -17,10 +22,11 @@ export const createRider = asyncHandler(async (req: AuthRequest, res: Response) 
 });
 
 export const updateRider = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const uploadedFile = (req as Request & { file?: Express.Multer.File }).file;
-    if (uploadedFile) {
-        req.body.riderImage = `${env.APP_URL}/uploads/riders/${uploadedFile.filename}`;
-    }
+    const files = (req as Request & { files?: Record<string, Express.Multer.File[]> }).files;
+    const riderImage = files?.riderImage?.[0];
+
+    if (riderImage) req.body.riderImage = `${env.APP_URL}/uploads/riders/${riderImage.filename}`;
+
     const { id } = req.body;
     const dto = updateRiderSchema.parse(req.body);
     const rider = await RiderService.updateRider(id, dto);

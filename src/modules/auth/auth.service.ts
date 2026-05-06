@@ -48,6 +48,17 @@ export async function createUser(
   return sanitizeUser(user);
 }
 
+export async function updateUser(id: string, dto: { name?: string; userImage?: string }) {
+  const user = await User.findById(id);
+  if (!user) throw new HttpError(404, "User not found");
+
+  if (dto.name) user.name = dto.name;
+  if (dto.userImage) user.userImage = dto.userImage;
+
+  await user.save();
+  return sanitizeUser(user);
+}
+
 export async function adminCreateUser(
   adminId: string,
   dto: {
@@ -190,19 +201,19 @@ export async function getMe(userId: string) {
   return sanitizeUser(user);
 }
 
-export async function updateMe(userId: string, dto: { name?: string; isProfileComplete?: boolean }) {
+export async function updateMe(userId: string, dto: { name?: string; userImage?: string; isProfileComplete?: boolean }) {
   const user = await User.findById(userId);
   if (!user) throw new HttpError(404, "User not found");
 
   if (dto.name) user.name = dto.name;
-  if (dto.isProfileComplete !== undefined) user.isProfileComplete = dto.isProfileComplete;
+  if (dto.userImage !== undefined) user.userImage = dto.userImage;
+  if (dto.isProfileComplete !== undefined) user.isProfileComplete = dto.isProfileComplete; 
 
   await user.save();
   return sanitizeUser(user);
 }
 
 export async function deleteMe(userId: string) {
-
   await User.findByIdAndDelete(userId);
   return true;
 }
@@ -212,6 +223,7 @@ function sanitizeUser(user: any) {
     id: String(user._id),
     email: user.email,
     name: user.name,
+    userImage: user.userImage,
     phoneNumber: user.phoneNumber,
     role: user.role,
     isActive: user.isActive,

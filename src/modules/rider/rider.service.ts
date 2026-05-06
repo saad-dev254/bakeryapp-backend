@@ -42,7 +42,7 @@ dto: {
   riderAddress?: string;
   riderLatitude?: number;
   riderLongitude?: number;
-  riderStatus: string;
+  riderStatus?: string;
 }) {
   const rider = await Riders.findById(id);
   if (!rider) throw new HttpError(404, "Rider not found");

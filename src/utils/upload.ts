@@ -3,17 +3,18 @@ import path from "path";
 import multer from "multer";
 
 const uploadsRoot = path.join(process.cwd(), "uploads");
+const userUploadsDir = path.join(uploadsRoot, "users");
 const vendorUploadsDir = path.join(uploadsRoot, "vendors");
 const riderUploadsDir = path.join(uploadsRoot, "riders");
 const productUploadsDir = path.join(uploadsRoot, "products");
 
-[uploadsRoot, vendorUploadsDir, riderUploadsDir, productUploadsDir].forEach((dir) => {
+[uploadsRoot, userUploadsDir, vendorUploadsDir, riderUploadsDir, productUploadsDir].forEach((dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 });
 
-function makeStorage(folderName: "vendors" | "products" | "riders") {
+function makeStorage(folderName: "users" | "vendors" | "products" | "riders") {
   return multer.diskStorage({
     destination: (_req, _file, cb) => {
       cb(null, path.join(uploadsRoot, folderName));
@@ -33,6 +34,11 @@ function imageFileFilter(_req: Express.Request, file: Express.Multer.File, cb: m
   }
   cb(new Error("Only image files are allowed"));
 }
+
+export const userImageUpload = multer({
+  storage: makeStorage("users"),
+  fileFilter: imageFileFilter,
+});
 
 export const vendorImageUpload = multer({
   storage: makeStorage("vendors"),

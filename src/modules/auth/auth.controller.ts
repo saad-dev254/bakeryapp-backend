@@ -7,7 +7,7 @@ import {
   forgotPasswordSchema,
   loginSchema,
   resetPasswordSchema,
-  updateProfileSchema
+  updateProfileSchema,
 } from "./auth.validation";
 import * as AuthService from "./auth.service";
 import { AuthRequest } from "./auth.middleware";
@@ -103,13 +103,11 @@ export const me = asyncHandler(async (req: AuthRequest, res: Response) => {
 });
 
 export const updateMe = asyncHandler(async (req: AuthRequest, res: Response) => {
-  // Disallow updating phoneNumber via this route
-  // if ('phoneNumber' in req.body) {
-  //   throw new HttpError(400, "Updating phoneNumber is not allowed");
-  // }
-  // if ('role' in req.body) {
-  //   throw new HttpError(400, "Updating role is not allowed");
-  // }
+  const files = (req as Request & { files?: Record<string, Express.Multer.File[]> }).files;
+  const userImage = files?.userImage?.[0];
+
+  if (userImage) req.body.userImage = `${env.APP_URL}/uploads/users/${userImage.filename}`;
+  
   const dto = updateProfileSchema.parse(req.body);
   const user = await AuthService.updateMe(req.user!.id, dto);
   res.json({ success: true, message: "Profile updated", data: user });

@@ -29,6 +29,7 @@ const city_routes_1 = require("./modules/city/city.routes");
 // ✅ JSON swagger import
 const swagger_json_1 = __importDefault(require("./docs/swagger.json"));
 const order_routes_1 = require("./modules/order/order.routes");
+const rider_routes_1 = require("./modules/rider/rider.routes");
 function createApp() {
     const app = (0, express_1.default)();
     app.set("trust proxy", 1);
@@ -52,7 +53,7 @@ function createApp() {
     app.use("/docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_json_1.default));
     app.use("/api/health", health_routes_1.healthRouter);
     app.use("/api/auth", auth_routes_1.authRouter);
-    app.use("/api", vendors_routes_1.vendorRouter, product_routes_1.productRouter, category_routes_1.categoryRouter, addOns_routes_1.addOnRouter, order_routes_1.orderRouter, shipment_routes_1.shipmentRouter, country_routes_1.countryRouter, delivery_routes_1.deliveryRouter, city_routes_1.cityRouter);
+    app.use("/api", vendors_routes_1.vendorRouter, rider_routes_1.riderRouter, product_routes_1.productRouter, category_routes_1.categoryRouter, addOns_routes_1.addOnRouter, order_routes_1.orderRouter, shipment_routes_1.shipmentRouter, country_routes_1.countryRouter, delivery_routes_1.deliveryRouter, city_routes_1.cityRouter);
     app.use(notFound_1.notFound);
     app.use(errorHandler_1.errorHandler);
     return app;

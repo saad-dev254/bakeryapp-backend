@@ -26,6 +26,8 @@ import { cityRouter } from "./modules/city/city.routes";
 // ✅ JSON swagger import
 import swaggerDoc from "./docs/swagger.json";
 import { orderRouter } from "./modules/order/order.routes";
+import { riderRouter } from "./modules/rider/rider.routes";
+import { addressRouter } from "./modules/userAddress/userAddress.routes";
 
 export function createApp() {
   const app = express();
@@ -60,7 +62,7 @@ export function createApp() {
 
   app.use("/api/health", healthRouter);
   app.use("/api/auth", authRouter);
-  app.use("/api", vendorRouter, productRouter, categoryRouter, addOnRouter, orderRouter, shipmentRouter, countryRouter, deliveryRouter, cityRouter);
+  app.use("/api", vendorRouter, riderRouter, productRouter, categoryRouter, addOnRouter, orderRouter, addressRouter, shipmentRouter, countryRouter, deliveryRouter, cityRouter);
 
   app.use(notFound);
   app.use(errorHandler);

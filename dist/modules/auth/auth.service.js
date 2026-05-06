@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createUser = createUser;
+exports.updateUser = updateUser;
 exports.adminCreateUser = adminCreateUser;
 exports.login = login;
 exports.refresh = refresh;
@@ -30,6 +31,7 @@ async function createUser(dto) {
     const user = await user_model_1.User.create({
         email: dto.email.toLowerCase(),
         name: dto.name,
+        userImage: dto.userImage,
         phoneNumber: dto.phoneNumber,
         role: dto.role,
         isActive: true,
@@ -37,6 +39,17 @@ async function createUser(dto) {
         passwordHash,
         createdBy: "self"
     });
+    return sanitizeUser(user);
+}
+async function updateUser(id, dto) {
+    const user = await user_model_1.User.findById(id);
+    if (!user)
+        throw new httpError_1.HttpError(404, "User not found");
+    if (dto.name)
+        user.name = dto.name;
+    if (dto.userImage)
+        user.userImage = dto.userImage;
+    await user.save();
     return sanitizeUser(user);
 }
 async function adminCreateUser(adminId, dto) {
@@ -49,6 +62,7 @@ async function adminCreateUser(adminId, dto) {
     const user = await user_model_1.User.create({
         email: dto.email.toLowerCase(),
         name: dto.name,
+        userImage: dto.userImage,
         phoneNumber: dto.phoneNumber.trim(),
         role: dto.role,
         isActive: dto.isActive ?? true,
@@ -164,6 +178,7 @@ function sanitizeUser(user) {
         id: String(user._id),
         email: user.email,
         name: user.name,
+        userImage: user.userImage,
         phoneNumber: user.phoneNumber,
         role: user.role,
         isActive: user.isActive,

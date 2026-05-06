@@ -32,5 +32,6 @@ export const resetPasswordSchema = z.object({
 
 export const updateProfileSchema = z.object({
   name: z.string().min(2).optional(),
+  userImage: z.string().optional(),
   isProfileComplete: z.boolean().optional()
 });

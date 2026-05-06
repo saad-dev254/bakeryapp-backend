@@ -16,7 +16,7 @@ export const updateRiderSchema = z.object({
     riderName: z.string().optional(),
     riderImage: z.string().optional(),
     riderAddress: z.string().optional(),
-    riderLatitude: z.coerce.number(),
-    riderLongitude: z.coerce.number(),
-    riderStatus: z.string().min(2),
+    riderLatitude: z.coerce.number().optional(),
+    riderLongitude: z.coerce.number().optional(),
+    riderStatus: z.string().min(2).optional()
 });

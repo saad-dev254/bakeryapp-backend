@@ -38,6 +38,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const UserSchema = new mongoose_1.Schema({
     email: { type: String, required: true, lowercase: true, trim: true },
     name: { type: String, required: true, trim: true },
+    userImage: { type: String },
     phoneNumber: { type: String, required: true, trim: true },
     role: { type: String, enum: ["ADMIN", "USER", "VENDOR", "RIDER"], default: "USER", required: true },
     isActive: { type: Boolean, default: true },
