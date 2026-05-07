@@ -40,8 +40,6 @@ export interface IOrder extends Document {
     vendorName?: string;
     vendorEmail?: string;
     vendorPhoneNumber?: string;
-    vendorDesignation?: string;
-    vendorCnicNumber?: string;
     bakeryImage?: string;
     bakeryName?: string;
     bakeryAddress?: string;
@@ -52,7 +50,6 @@ export interface IOrder extends Document {
     bakeryType?: string;
     preOrder?: string;
     deliveryTime?: string;
-    status?: string;
 
     // rider keys
     riderId?: mongoose.Types.ObjectId;
@@ -109,8 +106,6 @@ const orderSchema: Schema = new mongoose.Schema({
     vendorName: { type: String, required: true },
     vendorEmail: { type: String, required: true },
     vendorPhoneNumber: { type: String, required: true },
-    vendorDesignation: { type: String, required: true },
-    vendorCnicNumber: { type: String, required: true },
     bakeryImage: { type: String, required: true },
     bakeryName: { type: String, required: true },
     bakeryAddress: { type: String, required: true },
@@ -121,7 +116,6 @@ const orderSchema: Schema = new mongoose.Schema({
     bakeryType: { type: String, required: true },
     preOrder: { type: String, required: true },
     deliveryTime: { type: String, required: true },
-    status: { type: String, required: true },
 
     // rider keys
     riderId: { type: Schema.Types.ObjectId, required: true, ref: "Rider" },

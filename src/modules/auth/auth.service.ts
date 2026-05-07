@@ -21,6 +21,7 @@ export async function createUser(
     role: "ADMIN" | "USER" | "VENDOR" | "RIDER";
     isActive?: boolean;
     isProfileComplete?: boolean;
+    isApproved?: boolean;
   }
 ) {
   const exists = await User.findOne({ 
@@ -41,6 +42,7 @@ export async function createUser(
     role: dto.role,
     isActive: true,
     isProfileComplete: dto.role === "VENDOR" || dto.role === "RIDER" ? false : true,
+    isApproved: dto.role === "VENDOR" || dto.role === "RIDER" ? false : true,
     passwordHash,
     createdBy: "self"
   });
@@ -93,16 +95,28 @@ export async function adminCreateUser(
 }
 
 export async function login(dto: {
-  phoneNumber: string;
+  email?: string;
+  phoneNumber?: string;
   password: string;
   role: "ADMIN" | "USER" | "VENDOR" | "RIDER";
 }) {
-  const user = await User.findOne({ phoneNumber: dto.phoneNumber.trim(), role: dto.role });
-  if (!user) throw new HttpError(401, "Invalid phone number, role, or password");
+  // const user = await User.findOne({ phoneNumber: dto.phoneNumber.trim(), role: dto.role });
+  let user;
+  if (dto.email && dto.role === "ADMIN") {
+    user = await User.findOne({ email: dto.email?.toLowerCase(), role: dto.role });
+    if (!user) throw new HttpError(401, "Invalid email, role, or password");
+  } else {
+    user = await User.findOne({ phoneNumber: dto.phoneNumber?.trim(), role: dto.role });
+    if (!user) throw new HttpError(401, "Invalid phone number, role, or password");
+  }
   if (!user.isActive) throw new HttpError(403, "Account is disabled");
 
   const ok = await compareHash(dto.password, user.passwordHash);
-  if (!ok) throw new HttpError(401, "Invalid phone number, role, or password");
+  if (dto.email && dto.role === "ADMIN") {
+    if (!ok) throw new HttpError(401, "Invalid email, role, or password");
+  } else {
+    if (!ok) throw new HttpError(401, "Invalid phone number, role, or password");
+  }
 
   const payload = { sub: String(user._id), role: user.role, email: user.email };
   const accessToken = signAccessToken(payload);
@@ -228,6 +242,7 @@ function sanitizeUser(user: any) {
     role: user.role,
     isActive: user.isActive,
     isProfileComplete: user.isProfileComplete,
+    isApproved: user.isApproved,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt
   };

@@ -45,10 +45,16 @@ dto: {
   return sanitizeVendor(vendor);
 }
 
-export async function getAllVendors() {
-    const vendors = await Vendors.find().populate("vendorId", "name email phoneNumber");
-    if (!vendors || vendors.length === 0) throw new HttpError(404, "No vendors found");
-    return vendors.map(sanitizeVendor);
+export async function getAllVendors(isApproved?: boolean) {
+  // let vendors;
+  // if (isApproved) {
+  //   vendors = await Vendors.find({ isApproved: isApproved }).populate("vendorId", "name email phoneNumber");
+  // } else {
+  //   vendors = await Vendors.find().populate("vendorId", "name email phoneNumber");
+  // }
+  const vendors = await Vendors.find().populate("vendorId", "name email phoneNumber");
+  if (!vendors || vendors.length === 0) throw new HttpError(404, "No vendors found");
+  return vendors.map(sanitizeVendor);
 }
 
 export async function getSingleVendor(id: string) {

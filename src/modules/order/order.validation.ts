@@ -24,7 +24,7 @@ export const createOrderSchema = z.object({
     orderInstructions: z.string().min(2),
     subTotalAmount: z.string().min(2),
     deliveryCharges: z.string().min(2),
-    discountAmount: z.string().min(2),
+    discountAmount: z.string().optional(),
     totalAmount: z.string().min(2),
 
     // product keys
@@ -39,8 +39,6 @@ export const createOrderSchema = z.object({
     vendorName: z.string().min(2),
     vendorEmail: z.string().min(2),
     vendorPhoneNumber: z.string().min(2),
-    vendorDesignation: z.string().min(2),
-    vendorCnicNumber: z.string().min(2),
     bakeryImage: z.string().min(2),
     bakeryName: z.string().min(2),
     bakeryAddress: z.string().min(2),
@@ -51,7 +49,6 @@ export const createOrderSchema = z.object({
     bakeryType: z.string().min(2),
     preOrder: z.string().min(2),
     deliveryTime: z.string().min(2),
-    status: z.string().min(2),
 
     // rider keys
     riderId:  z.string().min(2),
@@ -65,4 +62,9 @@ export const updateOrderSchema = z.object({
     // order keys
     orderStatus: z.string().optional(),
     orderInstructions: z.string().optional()
+});
+
+export const orderAnalyticsSchema = z.object({
+    userId: z.string().optional(),
+    role: z.enum(["ADMIN", "USER", "RIDER", "VENDOR"]),
 });

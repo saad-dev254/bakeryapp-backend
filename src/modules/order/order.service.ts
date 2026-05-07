@@ -1,4 +1,5 @@
 import { HttpError } from "../../utils/httpError";
+import mongoose from "mongoose";
 import Order from "./order.model";
 
 type AddOnItem = {
@@ -26,7 +27,7 @@ dto: {
   orderInstructions: string,
   subTotalAmount: string,
   deliveryCharges: string,
-  discountAmount: string,
+  discountAmount?: string,
   totalAmount: string,
 
   // product keys
@@ -41,8 +42,6 @@ dto: {
   vendorName: string,
   vendorEmail: string,
   vendorPhoneNumber: string,
-  vendorDesignation: string,
-  vendorCnicNumber: string,
   bakeryImage: string,
   bakeryName: string,
   bakeryAddress: string,
@@ -53,7 +52,6 @@ dto: {
   bakeryType: string,
   preOrder: string,
   deliveryTime: string,
-  status: string,
 
   // rider keys
   riderId: string,
@@ -98,8 +96,6 @@ dto: {
     vendorName: dto.vendorName,
     vendorEmail: dto.vendorEmail,
     vendorPhoneNumber: dto.vendorPhoneNumber,
-    vendorDesignation: dto.vendorDesignation,
-    vendorCnicNumber: dto.vendorCnicNumber,
     bakeryImage: dto.bakeryImage,
     bakeryName: dto.bakeryName,
     bakeryAddress: dto.bakeryAddress,
@@ -110,7 +106,6 @@ dto: {
     bakeryType: dto.bakeryType,
     preOrder: dto.preOrder,
     deliveryTime: dto.deliveryTime,
-    status: dto.status,
 
     // rider keys
     riderId: dto.riderId,
@@ -155,6 +150,133 @@ export async function deleteOrder(id: string) {
   return true;
 }
 
+export async function getOrderAnalytics(dto: { role: "ADMIN" | "USER" | "RIDER" | "VENDOR"; userId?: string }) {
+  const statusList = [
+    "total",
+    "pending",
+    "processing",
+    "preorder",
+    "ready",
+    "delivered",
+    "cancelled",
+    "refunded",
+    "failed",
+  ];
+
+  const matchQuery: Record<string, any> = {};
+  if (dto.role !== "ADMIN") {
+    if (!dto.userId || !mongoose.Types.ObjectId.isValid(dto.userId)) {
+      throw new HttpError(400, "Invalid or missing user ID");
+    }
+    matchQuery.userId = new mongoose.Types.ObjectId(dto.userId);
+  }
+
+  /* =========================
+    STATUS COUNTS
+  ========================= */
+  const statusPipeline: any[] = [];
+  if (Object.keys(matchQuery).length) statusPipeline.push({ $match: matchQuery });
+  statusPipeline.push({
+    $group: {
+      _id: "$orderStatus",
+      count: { $sum: 1 },
+    },
+  });
+
+  const statusCounts = await Order.aggregate(statusPipeline);
+  const statusMap: Record<string, number> = {};
+  statusCounts.forEach((item: any) => {
+    statusMap[item._id] = item.count;
+  });
+
+  const statusResult: Record<string, number> = {};
+  statusList.forEach((status) => {
+    statusResult[status] = statusMap[status] || 0;
+  });
+
+  const totalOrders = Object.keys(matchQuery).length
+    ? await Order.countDocuments(matchQuery)
+    : await Order.estimatedDocumentCount();
+
+  // Count months wise orders and list monthly orders
+  // We'll aggregate by month using $group and $dateToString to extract month and year
+  const monthlyOrders = await Order.aggregate([
+    ...(Object.keys(matchQuery).length ? [{ $match: matchQuery }] : []),
+    {
+      $group: {
+        _id: { $dateToString: { format: "%Y-%m", date: "$created_at" } },
+        count: { $sum: 1 },
+        orders: { $push: "$$ROOT" },
+      },
+    },
+    {
+      $sort: { "_id": 1 }
+    }
+  ]);
+
+  // Format results as array of { month: "YYYY-MM", count, monthName }
+  const months = monthlyOrders.map(m => {
+    // m._id is 'YYYY-MM'
+    const [year, month] = m._id.split("-");
+    // Use JavaScript Date to get month name
+    const dateTmp = new Date(Number(year), Number(month) - 1, 1);
+    const monthName = dateTmp.toLocaleString('default', { month: 'long' });
+    return {
+      month: m._id,
+      monthName: monthName,
+      count: m.count,
+    };
+  });
+
+
+  // Calculate count for today, this week, this month, and this year
+
+  // Get today's date at midnight
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const weekStart = new Date(todayStart);
+  weekStart.setDate(todayStart.getDate() - todayStart.getDay()); // Sunday as first day of the week
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const yearStart = new Date(now.getFullYear(), 0, 1);
+
+  // Only count "delivered" orders in these summary stats
+  const deliveredMatch = { ...matchQuery, orderStatus: "delivered" };
+
+  const todayCount = await Order.countDocuments({
+    ...deliveredMatch,
+    created_at: { $gte: todayStart }
+  });
+
+  const thisWeekCount = await Order.countDocuments({
+    ...deliveredMatch,
+    created_at: { $gte: weekStart }
+  });
+
+  const thisMonthCount = await Order.countDocuments({
+    ...deliveredMatch,
+    created_at: { $gte: monthStart }
+  });
+
+  const thisYearCount = await Order.countDocuments({
+    ...deliveredMatch,
+    created_at: { $gte: yearStart }
+  });
+
+  return {
+    status_counts: {
+      ...statusResult,
+      allOrders: totalOrders,
+    },
+    monthly_orders: months,
+    summary: {
+      today: todayCount,
+      thisWeek: thisWeekCount,
+      thisMonth: thisMonthCount,
+      thisYear: thisYearCount
+    }
+  };
+}
+
 function sanitizeOrder(order: any) {
   return {
     id: String(order._id),
@@ -192,8 +314,6 @@ function sanitizeOrder(order: any) {
     vendorName: order.vendorName,
     vendorEmail: order.vendorEmail,
     vendorPhoneNumber: order.vendorPhoneNumber,
-    vendorDesignation: order.vendorDesignation,
-    vendorCnicNumber: order.vendorCnicNumber,
     bakeryImage: order.bakeryImage,
     bakeryName: order.bakeryName,
     bakeryAddress: order.bakeryAddress,

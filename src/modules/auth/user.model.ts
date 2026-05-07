@@ -10,6 +10,7 @@ export interface IUser {
   role: UserRole;
   isActive: boolean;
   isProfileComplete: boolean;
+  isApproved: boolean;
   passwordHash: string;
   passwordChangedAt?: Date;
 
@@ -32,6 +33,7 @@ const UserSchema = new Schema<IUser>(
     role: { type: String, enum: ["ADMIN", "USER", "VENDOR", "RIDER"], default: "USER", required: true },
     isActive: { type: Boolean, default: true },
     isProfileComplete: { type: Boolean, default: true },
+    isApproved: { type: Boolean, default: false },
     passwordHash: { type: String, required: true },
     passwordChangedAt: { type: Date },
 
