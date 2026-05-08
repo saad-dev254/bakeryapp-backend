@@ -215,13 +215,14 @@ export async function getMe(userId: string) {
   return sanitizeUser(user);
 }
 
-export async function updateMe(userId: string, dto: { name?: string; userImage?: string; isProfileComplete?: boolean }) {
+export async function updateMe(userId: string, dto: { name?: string; userImage?: string; isProfileComplete?: boolean; isApproved?: boolean }) {
   const user = await User.findById(userId);
   if (!user) throw new HttpError(404, "User not found");
 
   if (dto.name) user.name = dto.name;
   if (dto.userImage !== undefined) user.userImage = dto.userImage;
   if (dto.isProfileComplete !== undefined) user.isProfileComplete = dto.isProfileComplete; 
+  if (dto.isApproved !== undefined) user.isApproved = dto.isApproved; 
 
   await user.save();
   return sanitizeUser(user);

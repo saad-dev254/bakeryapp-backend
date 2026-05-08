@@ -43,6 +43,7 @@ const UserSchema = new mongoose_1.Schema({
     role: { type: String, enum: ["ADMIN", "USER", "VENDOR", "RIDER"], default: "USER", required: true },
     isActive: { type: Boolean, default: true },
     isProfileComplete: { type: Boolean, default: true },
+    isApproved: { type: Boolean, default: false },
     passwordHash: { type: String, required: true },
     passwordChangedAt: { type: Date },
     refreshTokenHash: { type: String },

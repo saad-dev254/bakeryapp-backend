@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteMe = exports.updateMe = exports.me = exports.resetPassword = exports.forgotPassword = exports.changePassword = exports.logout = exports.refresh = exports.login = exports.adminCreateUser = exports.updateUser = exports.createUser = void 0;
+exports.deleteMe = exports.updateMe = exports.me = exports.resetPassword = exports.forgotPassword = exports.changePassword = exports.logout = exports.refresh = exports.login = exports.adminCreateUser = exports.createUser = void 0;
 const asyncHandler_1 = require("../../utils/asyncHandler");
 const httpError_1 = require("../../utils/httpError");
 const auth_validation_1 = require("./auth.validation");
@@ -53,30 +53,12 @@ function clearRefreshCookie(res) {
 }
 exports.createUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     // const adminId = req.user!.id;
-    const uploadedFile = req.file;
-    if (uploadedFile) {
-        req.body.userImage = `${env_1.env.APP_URL}/uploads/users/${uploadedFile.filename}`;
-    }
     const dto = auth_validation_1.adminCreateUserSchema.parse(req.body);
     const user = await AuthService.createUser(dto);
     res.status(201).json({ success: true, message: `${dto.role} created`, data: user });
 });
-exports.updateUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const files = req.files;
-    const userImage = files?.userImage?.[0];
-    if (userImage)
-        req.body.userImage = `${env_1.env.APP_URL}/uploads/users/${userImage.filename}`;
-    const { id } = req.body;
-    const dto = auth_validation_1.userUpdateSchema.parse(req.body);
-    const user = await AuthService.updateUser(id, dto);
-    res.status(201).json({ success: true, message: `User updated`, data: user });
-});
 exports.adminCreateUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const adminId = req.user.id;
-    const uploadedFile = req.file;
-    if (uploadedFile) {
-        req.body.userImage = `${env_1.env.APP_URL}/uploads/users/${uploadedFile.filename}`;
-    }
     const dto = auth_validation_1.adminCreateUserSchema.parse(req.body);
     const user = await AuthService.adminCreateUser(adminId, dto);
     res.status(201).json({ success: true, message: "User created", data: user });
@@ -130,15 +112,12 @@ exports.me = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     res.json({ success: true, data: user });
 });
 exports.updateMe = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    // Disallow updating phoneNumber via this route
-    // if ('phoneNumber' in req.body) {
-    //   throw new HttpError(400, "Updating phoneNumber is not allowed");
-    // }
-    // if ('role' in req.body) {
-    //   throw new HttpError(400, "Updating role is not allowed");
-    // }
+    const files = req.files;
+    const userImage = files?.userImage?.[0];
+    if (userImage)
+        req.body.userImage = `${env_1.env.APP_URL}/uploads/users/${userImage.filename}`;
     const dto = auth_validation_1.updateProfileSchema.parse(req.body);
-    const user = await AuthService.updateMe(req.user.id, dto);
+    const user = await AuthService.updateMe(req.body?.id, dto);
     res.json({ success: true, message: "Profile updated", data: user });
 });
 exports.deleteMe = (0, asyncHandler_1.asyncHandler)(async (req, res) => {

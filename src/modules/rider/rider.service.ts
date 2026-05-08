@@ -63,10 +63,60 @@ dto: {
   return sanitizeRider(updatedRider);
 }
 
-export async function getAllRiders() {
-  const riders = await Riders.find().populate("riderId", "name email phoneNumber");
+export async function getAllRiders(
+  isApproved?: boolean,
+  page?: number,
+  limit?: number
+) {
+  // Default values for page & limit
+  const resolvedPage = page && page > 0 ? page : 1;
+  const resolvedLimit = limit && limit > 0 ? limit : 10;
+
+  // Calculate skip for pagination
+  const skip = (resolvedPage - 1) * resolvedLimit;
+
+  // Filter for Riders based on isApproved status in User (joined doc)
+  let riderIdFilter: any = {};
+  if (isApproved !== undefined) {
+    // Find users with isApproved and get their IDs for filter
+    const users = await User.find({ isApproved }).select("_id").lean();
+    const allowedRiderIds = users.map(u => u._id);
+    if (!allowedRiderIds.length) {
+      throw new HttpError(404, "No riders found");
+    }
+    riderIdFilter.riderId = { $in: allowedRiderIds };
+  }
+
+  // Build the populate object
+  const populate = {
+    path: "riderId",
+    select: "name email phoneNumber isApproved",
+  };
+
+  // Find riders with pagination and population
+  let riders = await Riders.find(riderIdFilter)
+    .populate(populate)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(resolvedLimit);
+
+  // Filter out riders without populated user field
+  riders = riders.filter(r => r.riderId);
+
   if (!riders || riders.length === 0) throw new HttpError(404, "No riders found");
-  return riders.map(sanitizeRider);
+
+  // Total count for pagination metadata
+  const totalRiders = await Riders.countDocuments(riderIdFilter);
+
+  return {
+    data: riders.map(sanitizeRider),
+    pagination: {
+      page: resolvedPage,
+      limit: resolvedLimit,
+      total: totalRiders,
+      totalPages: Math.ceil(totalRiders / resolvedLimit)
+    }
+  };
 }
 
 export async function getSingleRider(id: string) {
@@ -91,6 +141,7 @@ function sanitizeRider(user: any) {
     riderName: riderUser?.name,
     riderEmail: riderUser?.email,
     riderMobileNo: riderUser?.phoneNumber,
+    riderIsApproved: riderUser?.isApproved,
     riderCnicNumber: user.riderCnicNumber,
     riderImage: user.riderImage,
     riderCnicFrontImage: user.riderCnicFrontImage,

@@ -71,7 +71,7 @@ exports.updateVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     res.json({ success: true, message: "Profile updated", data: vendor });
 });
 exports.getAllVendors = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const vendors = await VendorService.getAllVendors();
+    const vendors = await VendorService.getAllVendors(req.body?.isApproved, req.body?.page, req.body?.limit);
     res.json({ success: true, data: vendors });
 });
 exports.getSingleVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
@@ -84,30 +84,3 @@ exports.deleteVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     await VendorService.deleteVendor(id);
     res.json({ success: true, message: "Vendor deleted" });
 });
-// // DELETE single vendor by ID
-// export const deleteVendor = asyncHandler(async (req: Request, res: Response) => {
-//     const { id } = req.params;
-//     try {
-//         const deletedVendor = await Vendors.findByIdAndDelete(id);
-//         if (!deletedVendor) {
-//             return res.status(404).json({
-//                 code: 404,
-//                 status: false,
-//                 message: "Vendor not found",
-//             });
-//         }
-//         res.status(200).json({
-//             code: 200,
-//             status: true,
-//             message: "Vendor deleted successfully",
-//             // data: deletedVendor,
-//         });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({
-//             code: 500,
-//             status: false,
-//             message: "Failed to delete vendor",
-//         });
-//     }
-// });

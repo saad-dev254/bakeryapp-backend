@@ -34,7 +34,7 @@ export const updateRider = asyncHandler(async (req: AuthRequest, res: Response) 
 });
 
 export const getAllRiders = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const riders = await RiderService.getAllRiders();
+    const riders = await RiderService.getAllRiders(req.body?.isApproved, req.body?.page, req.body?.limit);
     res.json({ success: true, data: riders });
 });
 

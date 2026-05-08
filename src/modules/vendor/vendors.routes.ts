@@ -9,7 +9,7 @@ export const vendorRouter = Router();
 // protected
 vendorRouter.post("/add-vendor", requireAuth, vendorImageUpload.single("bakeryImage"), createVendor);
 vendorRouter.put("/update-vendor", requireAuth, vendorImageUpload.single("bakeryImage"), updateVendor);
-vendorRouter.get("/all-vendors", requireAuth, getAllVendors);
+vendorRouter.post("/all-vendors", requireAuth, getAllVendors);
 vendorRouter.post("/get-vendor-detail", requireAuth, getSingleVendor);
 vendorRouter.delete("/delete-vendor", authenticateToken, deleteVendor);
   

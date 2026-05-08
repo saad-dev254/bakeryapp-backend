@@ -40,7 +40,7 @@ export const updateVendor = asyncHandler(async (req: AuthRequest, res: Response)
 });
 
 export const getAllVendors = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const vendors = await VendorService.getAllVendors(req.body?.isApproved);
+    const vendors = await VendorService.getAllVendors(req.body?.isApproved, req.body?.page, req.body?.limit);
     res.json({ success: true, data: vendors });
 });
 

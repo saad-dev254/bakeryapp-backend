@@ -18,12 +18,10 @@ riderRouter.post("/add-rider", requireAuth,
 riderRouter.put("/update-rider", requireAuth,
   riderImageUpload.fields([
     { name: "riderImage", maxCount: 1 },
-    // { name: "riderCnicFrontImage", maxCount: 1 },
-    // { name: "riderCnicBackImage", maxCount: 1 },
   ]),
   updateRider
 );
-riderRouter.get("/all-riders", requireAuth, getAllRiders);
+riderRouter.post("/all-riders", requireAuth, getAllRiders);
 riderRouter.post("/get-rider-detail", requireAuth, getSingleRider);
 riderRouter.delete("/delete-rider", authenticateToken, deleteRider);
   

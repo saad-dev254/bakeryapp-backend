@@ -45,39 +45,84 @@ dto: {
   return sanitizeVendor(vendor);
 }
 
-export async function getAllVendors(isApproved?: boolean) {
-  // let vendors;
-  // if (isApproved) {
-  //   vendors = await Vendors.find({ isApproved: isApproved }).populate("vendorId", "name email phoneNumber");
-  // } else {
-  //   vendors = await Vendors.find().populate("vendorId", "name email phoneNumber");
-  // }
-  const vendors = await Vendors.find().populate("vendorId", "name email phoneNumber");
+export async function getAllVendors(
+  isApproved?: boolean,
+  page?: number,
+  limit?: number
+) {
+  // Set default values only if not provided by api/client
+  const resolvedPage = page && page > 0 ? page : 1;
+  const resolvedLimit = limit && limit > 0 ? limit : 10; // Default limit 10
+
+  // Calculate skip for pagination
+  const skip = (resolvedPage - 1) * resolvedLimit;
+
+  // Filter for Vendors based on isApproved status (against the joined User doc)
+  // We'll collect vendorIds of Users with the correct isApproved if filter applied
+  let vendorIdFilter: any = {};
+  if (isApproved !== undefined) {
+    // Find user IDs that match isApproved, then fetch vendors for those
+    const users = await User.find({ isApproved }).select("_id").lean();
+    const allowedVendorIds = users.map(u => u._id);
+    if (!allowedVendorIds.length) {
+      throw new HttpError(404, "No vendors found");
+    }
+    vendorIdFilter.vendorId = { $in: allowedVendorIds };
+  }
+
+  // Build the populate object
+  const populate = {
+    path: "vendorId",
+    select: "name email phoneNumber isApproved",
+  };
+
+  // Find vendors and sort by creation (latest first)
+  let vendors = await Vendors.find(vendorIdFilter)
+    .populate(populate)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(resolvedLimit);
+
+  // Filter out vendors if populated user field missing
+  vendors = vendors.filter(v => v.vendorId);
+
   if (!vendors || vendors.length === 0) throw new HttpError(404, "No vendors found");
-  return vendors.map(sanitizeVendor);
+
+  // Get the total count for pagination
+  const totalVendors = await Vendors.countDocuments(vendorIdFilter);
+
+  return {
+    data: vendors.map(sanitizeVendor),
+    pagination: {
+      page: resolvedPage,
+      limit: resolvedLimit,
+      total: totalVendors,
+      totalPages: Math.ceil(totalVendors / resolvedLimit)
+    }
+  };
 }
 
 export async function getSingleVendor(id: string) {
-  const vendor = await Vendors.findById(id).populate("vendorId", "name email phoneNumber");
+  const vendor = await Vendors.findById(id).populate("vendorId", "name email phoneNumber isApproved");
   if (!vendor) throw new HttpError(404, "Vendor not found");
   return sanitizeVendor(vendor);
 }
 
 export async function updateVendor(id: string, 
 dto: { 
-    vendorName?: string;
-    vendorDesignation?: string;
-    bakeryImage?: string;
-    bakeryName?: string;
-    bakeryAddress?: string;
-    bakeryLatitude?: number;
-    bakeryLongitude?: number;
-    openingTime?: string;
-    closingTime?: string;
-    bakeryType?: string;
-    preOrder?: string;
-    deliveryTime?: string;
-    status?: string 
+  vendorName?: string;
+  vendorDesignation?: string;
+  bakeryImage?: string;
+  bakeryName?: string;
+  bakeryAddress?: string;
+  bakeryLatitude?: number;
+  bakeryLongitude?: number;
+  openingTime?: string;
+  closingTime?: string;
+  bakeryType?: string;
+  preOrder?: string;
+  deliveryTime?: string;
+  status?: string 
 }) {
   const vendor = await Vendors.findById(id);
   if (!vendor) throw new HttpError(404, "Vendor not found");
@@ -122,6 +167,7 @@ function sanitizeVendor(user: any) {
     vendorMobileNo: vendorUser?.phoneNumber,
     vendorDesignation: user.vendorDesignation,
     vendorCnicNumber: user.vendorCnicNumber,
+    vendorIsApproved: vendorUser?.isApproved,
     bakeryImage: user.bakeryImage,
     bakeryName: user.bakeryName,
     bakeryAddress: user.bakeryAddress,

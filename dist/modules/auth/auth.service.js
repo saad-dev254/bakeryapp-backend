@@ -31,11 +31,11 @@ async function createUser(dto) {
     const user = await user_model_1.User.create({
         email: dto.email.toLowerCase(),
         name: dto.name,
-        userImage: dto.userImage,
         phoneNumber: dto.phoneNumber,
         role: dto.role,
         isActive: true,
         isProfileComplete: dto.role === "VENDOR" || dto.role === "RIDER" ? false : true,
+        isApproved: dto.role === "VENDOR" || dto.role === "RIDER" ? false : true,
         passwordHash,
         createdBy: "self"
     });
@@ -62,7 +62,6 @@ async function adminCreateUser(adminId, dto) {
     const user = await user_model_1.User.create({
         email: dto.email.toLowerCase(),
         name: dto.name,
-        userImage: dto.userImage,
         phoneNumber: dto.phoneNumber.trim(),
         role: dto.role,
         isActive: dto.isActive ?? true,
@@ -73,14 +72,29 @@ async function adminCreateUser(adminId, dto) {
     return sanitizeUser(user);
 }
 async function login(dto) {
-    const user = await user_model_1.User.findOne({ phoneNumber: dto.phoneNumber.trim(), role: dto.role });
-    if (!user)
-        throw new httpError_1.HttpError(401, "Invalid phone number, role, or password");
+    // const user = await User.findOne({ phoneNumber: dto.phoneNumber.trim(), role: dto.role });
+    let user;
+    if (dto.email && dto.role === "ADMIN") {
+        user = await user_model_1.User.findOne({ email: dto.email?.toLowerCase(), role: dto.role });
+        if (!user)
+            throw new httpError_1.HttpError(401, "Invalid email, role, or password");
+    }
+    else {
+        user = await user_model_1.User.findOne({ phoneNumber: dto.phoneNumber?.trim(), role: dto.role });
+        if (!user)
+            throw new httpError_1.HttpError(401, "Invalid phone number, role, or password");
+    }
     if (!user.isActive)
         throw new httpError_1.HttpError(403, "Account is disabled");
     const ok = await (0, auth_tokens_1.compareHash)(dto.password, user.passwordHash);
-    if (!ok)
-        throw new httpError_1.HttpError(401, "Invalid phone number, role, or password");
+    if (dto.email && dto.role === "ADMIN") {
+        if (!ok)
+            throw new httpError_1.HttpError(401, "Invalid email, role, or password");
+    }
+    else {
+        if (!ok)
+            throw new httpError_1.HttpError(401, "Invalid phone number, role, or password");
+    }
     const payload = { sub: String(user._id), role: user.role, email: user.email };
     const accessToken = (0, auth_tokens_1.signAccessToken)(payload);
     const refreshToken = (0, auth_tokens_1.signRefreshToken)(payload);
@@ -164,8 +178,12 @@ async function updateMe(userId, dto) {
         throw new httpError_1.HttpError(404, "User not found");
     if (dto.name)
         user.name = dto.name;
+    if (dto.userImage !== undefined)
+        user.userImage = dto.userImage;
     if (dto.isProfileComplete !== undefined)
         user.isProfileComplete = dto.isProfileComplete;
+    if (dto.isApproved !== undefined)
+        user.isApproved = dto.isApproved;
     await user.save();
     return sanitizeUser(user);
 }
@@ -183,6 +201,7 @@ function sanitizeUser(user) {
         role: user.role,
         isActive: user.isActive,
         isProfileComplete: user.isProfileComplete,
+        isApproved: user.isApproved,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
     };
