@@ -106,7 +106,7 @@ export const updateMe = asyncHandler(async (req: AuthRequest, res: Response) => 
   const files = (req as Request & { files?: Record<string, Express.Multer.File[]> }).files;
   const userImage = files?.userImage?.[0];
 
-  if (userImage) req.body.userImage = `${env.APP_URL}/uploads/users/${userImage.filename}`;
+  if (userImage) req.body.userImage = `/uploads/users/${userImage.filename}`;
 
   const dto = updateProfileSchema.parse(req.body);
   const user = await AuthService.updateMe(req.body?.id, dto);

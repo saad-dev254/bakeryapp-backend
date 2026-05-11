@@ -8,7 +8,7 @@ import { env } from "../../config/env";
 export const createProduct = asyncHandler(async (req: AuthRequest, res: Response) => {
     const uploadedFile = (req as Request & { file?: Express.Multer.File }).file;
     if (uploadedFile) {
-        req.body.productImage = `${env.APP_URL}/uploads/products/${uploadedFile.filename}`;
+        req.body.productImage = `/uploads/products/${uploadedFile.filename}`;
     }
     const { vendorId } = req.body;
     const dto = createProductSchema.parse(req.body);
@@ -19,7 +19,7 @@ export const createProduct = asyncHandler(async (req: AuthRequest, res: Response
 export const updateProduct = asyncHandler(async (req: AuthRequest, res: Response) => {
     const uploadedFile = (req as Request & { file?: Express.Multer.File }).file;
     if (uploadedFile) {
-        req.body.productImage = `${env.APP_URL}/uploads/products/${uploadedFile.filename}`;
+        req.body.productImage = `/uploads/products/${uploadedFile.filename}`;
     }
     const { id } = req.body;
     const dto = updateProductSchema.parse(req.body);

@@ -4,19 +4,30 @@ import Vendors from "./vendor.model";
 
 export async function createVendor(vendorId: string,
 dto: { 
-    vendorDesignation?: string;
-    vendorCnicNumber?: string;
-    bakeryImage?: string;
-    bakeryName?: string;
-    bakeryAddress?: string;
-    bakeryLatitude?: number;
-    bakeryLongitude?: number;
-    openingTime?: string;
-    closingTime?: string;
-    bakeryType?: string;
-    preOrder?: string;
-    deliveryTime?: string;
-    status?: string
+  vendorDesignation?: string;
+  vendorCnicNumber?: string;
+  vendorCnicFrontImage?: string;
+  vendorCnicBackImage?: string;
+  bakeryLogo?: string;
+  bakeryImage?: string;
+  bakeryName?: string;
+  bakeryAddress?: string;
+  bakeryLatitude?: string;
+  bakeryLongitude?: string;
+  city?: string;
+  area?: string;
+  ntnNumber?: string;
+  ntnImage?: string;
+  foodLicenseImage?: string;
+  openingTime?: string;
+  closingTime?: string;
+  bakeryType?: string;
+  preOrder?: string;
+  deliveryTime?: string;
+  status?: string;
+  kitchenImages?: string[];
+  approvalStatus?: string;
+  approvalReason?: string;
 }) {
   const exists = await Vendors.findOne({ 
     $or: [
@@ -29,20 +40,76 @@ dto: {
     vendorId: vendorId,
     vendorDesignation: dto.vendorDesignation,
     vendorCnicNumber: dto.vendorCnicNumber,
+    vendorCnicFrontImage: dto.vendorCnicFrontImage,
+    vendorCnicBackImage: dto.vendorCnicBackImage,
+    bakeryLogo: dto.bakeryLogo,
     bakeryImage: dto.bakeryImage,
     bakeryName: dto.bakeryName,
     bakeryAddress: dto.bakeryAddress,
     bakeryLatitude: dto.bakeryLatitude,
     bakeryLongitude: dto.bakeryLongitude,
+    city: dto.city,
+    area: dto.area,
+    ntnNumber: dto.ntnNumber,
+    ntnImage: dto.ntnImage,
+    foodLicenseImage: dto.foodLicenseImage,
     openingTime: dto.openingTime,
     closingTime: dto.closingTime,
     bakeryType: dto.bakeryType,
     preOrder: dto.preOrder,
     deliveryTime: dto.deliveryTime,
     status: dto.status,
+    kitchenImages: dto.kitchenImages,
+    approvalStatus: dto.approvalStatus,
+    approvalReason: dto.approvalReason,
   });
 
   return sanitizeVendor(vendor);
+}
+
+export async function updateVendor(id: string, 
+dto: { 
+  vendorName?: string;
+  vendorDesignation?: string;
+  bakeryImage?: string;
+  bakeryName?: string;
+  bakeryAddress?: string;
+  bakeryLatitude?: string;
+  bakeryLongitude?: string;
+  openingTime?: string;
+  closingTime?: string;
+  bakeryType?: string;
+  preOrder?: string;
+  deliveryTime?: string;
+  status?: string ;
+  approvalStatus?: string;
+  approvalReason?: string;
+}) {
+  const vendor = await Vendors.findById(id);
+  if (!vendor) throw new HttpError(404, "Vendor not found");
+
+  if (dto.vendorName) {
+    await User.findByIdAndUpdate(vendor.vendorId, { name: dto.vendorName });
+  }
+
+  if (dto.vendorDesignation) vendor.vendorDesignation = dto.vendorDesignation;
+  if (dto.bakeryImage) vendor.bakeryImage = dto.bakeryImage;
+  if (dto.bakeryName) vendor.bakeryName = dto.bakeryName;
+  if (dto.bakeryAddress) vendor.bakeryAddress = dto.bakeryAddress;
+  if (dto.bakeryLatitude) vendor.bakeryLatitude = dto.bakeryLatitude;
+  if (dto.bakeryLongitude) vendor.bakeryLongitude = dto.bakeryLongitude;
+  if (dto.openingTime) vendor.openingTime = dto.openingTime;
+  if (dto.closingTime) vendor.closingTime = dto.closingTime;
+  if (dto.bakeryType) vendor.bakeryType = dto.bakeryType;
+  if (dto.preOrder) vendor.preOrder = dto.preOrder;
+  if (dto.status) vendor.status = dto.status;
+  if (dto.approvalStatus) vendor.approvalStatus = dto.approvalStatus;
+  if (dto.approvalReason) vendor.approvalReason = dto.approvalReason;
+
+  await vendor.save();
+  const updatedVendor = await Vendors.findById(id).populate("vendorId", "name email phoneNumber");
+  if (!updatedVendor) throw new HttpError(404, "Vendor not found");
+  return sanitizeVendor(updatedVendor);
 }
 
 export async function getAllVendors(
@@ -108,47 +175,6 @@ export async function getSingleVendor(id: string) {
   return sanitizeVendor(vendor);
 }
 
-export async function updateVendor(id: string, 
-dto: { 
-  vendorName?: string;
-  vendorDesignation?: string;
-  bakeryImage?: string;
-  bakeryName?: string;
-  bakeryAddress?: string;
-  bakeryLatitude?: number;
-  bakeryLongitude?: number;
-  openingTime?: string;
-  closingTime?: string;
-  bakeryType?: string;
-  preOrder?: string;
-  deliveryTime?: string;
-  status?: string 
-}) {
-  const vendor = await Vendors.findById(id);
-  if (!vendor) throw new HttpError(404, "Vendor not found");
-
-  if (dto.vendorName) {
-    await User.findByIdAndUpdate(vendor.vendorId, { name: dto.vendorName });
-  }
-
-  if (dto.vendorDesignation) vendor.vendorDesignation = dto.vendorDesignation;
-  if (dto.bakeryImage) vendor.bakeryImage = dto.bakeryImage;
-  if (dto.bakeryName) vendor.bakeryName = dto.bakeryName;
-  if (dto.bakeryAddress) vendor.bakeryAddress = dto.bakeryAddress;
-  if (dto.bakeryLatitude) vendor.bakeryLatitude = dto.bakeryLatitude;
-  if (dto.bakeryLongitude) vendor.bakeryLongitude = dto.bakeryLongitude;
-  if (dto.openingTime) vendor.openingTime = dto.openingTime;
-  if (dto.closingTime) vendor.closingTime = dto.closingTime;
-  if (dto.bakeryType) vendor.bakeryType = dto.bakeryType;
-  if (dto.preOrder) vendor.preOrder = dto.preOrder;
-  if (dto.status) vendor.status = dto.status;
-
-  await vendor.save();
-  const updatedVendor = await Vendors.findById(id).populate("vendorId", "name email phoneNumber");
-  if (!updatedVendor) throw new HttpError(404, "Vendor not found");
-  return sanitizeVendor(updatedVendor);
-}
-
 export async function deleteVendor(vendorId: string) {
   await Vendors.findByIdAndDelete(vendorId);
   return true;
@@ -165,9 +191,18 @@ function sanitizeVendor(user: any) {
     vendorName: vendorUser?.name,
     vendorEmail: vendorUser?.email,
     vendorMobileNo: vendorUser?.phoneNumber,
+    vendorIsApproved: vendorUser?.isApproved,
     vendorDesignation: user.vendorDesignation,
     vendorCnicNumber: user.vendorCnicNumber,
-    vendorIsApproved: vendorUser?.isApproved,
+    vendorCnicFrontImage: user.vendorCnicFrontImage,
+    vendorCnicBackImage: user.vendorCnicBackImage,
+    bakeryLogo: user.bakeryLogo,
+    city: user.city,
+    area: user.area, 
+    ntnNumber: user.ntnNumber,
+    ntnImage: user.ntnImage,
+    foodLicenseImage: user.foodLicenseImage,
+    kitchenImages: user.kitchenImages,
     bakeryImage: user.bakeryImage,
     bakeryName: user.bakeryName,
     bakeryAddress: user.bakeryAddress,
@@ -181,5 +216,7 @@ function sanitizeVendor(user: any) {
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     status: user.status,
+    approvalStatus: user.approvalStatus,
+    approvalReason: user.approvalReason,
   };
 }
