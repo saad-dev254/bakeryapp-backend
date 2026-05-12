@@ -37,9 +37,28 @@ export const createVendor = asyncHandler(async (req: AuthRequest, res: Response)
 });
 
 export const updateVendor = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const uploadedFile = (req as Request & { file?: Express.Multer.File }).file;
-    if (uploadedFile) {
-        req.body.bakeryImage = `/uploads/vendors/${uploadedFile.filename}`;
+    const files = (req as Request & { files?: Record<string, Express.Multer.File[]> }).files;
+    const bakeryLogo = files?.bakeryLogo?.[0];
+    const bakeryImage = files?.bakeryImage?.[0];
+    const vendorCnicFrontImage = files?.vendorCnicFrontImage?.[0];
+    const vendorCnicBackImage = files?.vendorCnicBackImage?.[0];
+    const ntnImage = files?.ntnImage?.[0];
+    const foodLicenseImage = files?.foodLicenseImage?.[0];
+    const kitchenImageFiles = files?.kitchenImages || [];
+
+    if (bakeryLogo) req.body.bakeryLogo = `/uploads/vendors/${bakeryLogo.filename}`;
+    if (bakeryImage) req.body.bakeryImage = `/uploads/vendors/${bakeryImage.filename}`;
+    if (vendorCnicFrontImage) req.body.vendorCnicFrontImage = `/uploads/vendors/${vendorCnicFrontImage.filename}`;
+    if (vendorCnicBackImage) req.body.vendorCnicBackImage = `/uploads/vendors/${vendorCnicBackImage.filename}`;
+    if (ntnImage) req.body.ntnImage = `/uploads/vendors/${ntnImage.filename}`;
+    if (foodLicenseImage) req.body.foodLicenseImage = `/uploads/vendors/${foodLicenseImage.filename}`;
+    // Handle kitchenImages (multiple images: 0, 1, or many)
+    if (kitchenImageFiles.length > 0) {
+        req.body.kitchenImages = kitchenImageFiles.map(img =>
+            `/uploads/vendors/${img.filename}`
+        );
+    } else {
+        req.body.kitchenImages = []; // For consistency if none uploaded
     }
     
     const { id } = req.body;

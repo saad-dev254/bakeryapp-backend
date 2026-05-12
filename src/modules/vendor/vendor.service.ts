@@ -1,6 +1,7 @@
 import { HttpError } from "../../utils/httpError";
 import { User } from "../auth/user.model";
 import Vendors from "./vendor.model";
+import BankDetail from "../bankDetail/bankDetail.model";
 
 export async function createVendor(vendorId: string,
 dto: { 
@@ -24,10 +25,10 @@ dto: {
   bakeryType?: string;
   preOrder?: string;
   deliveryTime?: string;
-  status?: string;
+  isOnline?: string;
   kitchenImages?: string[];
   approvalStatus?: string;
-  approvalReason?: string;
+  rejectReason?: string;
 }) {
   const exists = await Vendors.findOne({ 
     $or: [
@@ -58,10 +59,10 @@ dto: {
     bakeryType: dto.bakeryType,
     preOrder: dto.preOrder,
     deliveryTime: dto.deliveryTime,
-    status: dto.status,
+    isOnline: dto.isOnline,
     kitchenImages: dto.kitchenImages,
-    approvalStatus: dto.approvalStatus,
-    approvalReason: dto.approvalReason,
+    approvalStatus: "pending",
+    rejectReason: "",
   });
 
   return sanitizeVendor(vendor);
@@ -71,19 +72,29 @@ export async function updateVendor(id: string,
 dto: { 
   vendorName?: string;
   vendorDesignation?: string;
+  vendorCnicNumber?: string;
+  vendorCnicFrontImage?: string;
+  vendorCnicBackImage?: string;
+  bakeryLogo?: string;
   bakeryImage?: string;
   bakeryName?: string;
   bakeryAddress?: string;
   bakeryLatitude?: string;
   bakeryLongitude?: string;
+  city?: string;
+  area?: string;
+  ntnNumber?: string;
+  ntnImage?: string;
+  foodLicenseImage?: string;
   openingTime?: string;
   closingTime?: string;
   bakeryType?: string;
   preOrder?: string;
   deliveryTime?: string;
-  status?: string ;
+  isOnline?: string;
+  kitchenImages?: string[];
   approvalStatus?: string;
-  approvalReason?: string;
+  rejectReason?: string;
 }) {
   const vendor = await Vendors.findById(id);
   if (!vendor) throw new HttpError(404, "Vendor not found");
@@ -102,9 +113,21 @@ dto: {
   if (dto.closingTime) vendor.closingTime = dto.closingTime;
   if (dto.bakeryType) vendor.bakeryType = dto.bakeryType;
   if (dto.preOrder) vendor.preOrder = dto.preOrder;
-  if (dto.status) vendor.status = dto.status;
+  if (dto.isOnline) vendor.isOnline = dto.isOnline;
   if (dto.approvalStatus) vendor.approvalStatus = dto.approvalStatus;
-  if (dto.approvalReason) vendor.approvalReason = dto.approvalReason;
+  if (dto.rejectReason) vendor.rejectReason = dto.rejectReason;
+  if (dto.vendorCnicNumber) vendor.vendorCnicNumber = dto.vendorCnicNumber;
+  if (dto.vendorCnicFrontImage) vendor.vendorCnicFrontImage = dto.vendorCnicFrontImage;
+  if (dto.vendorCnicBackImage) vendor.vendorCnicBackImage = dto.vendorCnicBackImage;
+  if (dto.bakeryLogo) vendor.bakeryLogo = dto.bakeryLogo;
+  if (dto.city) vendor.city = dto.city;
+  if (dto.area) vendor.area = dto.area;
+  if (dto.ntnNumber) vendor.ntnNumber = dto.ntnNumber;
+  if (dto.ntnImage) vendor.ntnImage = dto.ntnImage;
+  if (dto.foodLicenseImage) vendor.foodLicenseImage = dto.foodLicenseImage;
+  if (dto.deliveryTime) vendor.deliveryTime = dto.deliveryTime;
+  if (dto.approvalStatus) vendor.approvalStatus = dto.approvalStatus;
+  if (dto.rejectReason) vendor.rejectReason = dto.rejectReason;
 
   await vendor.save();
   const updatedVendor = await Vendors.findById(id).populate("vendorId", "name email phoneNumber");
@@ -158,8 +181,25 @@ export async function getAllVendors(
   // Get the total count for pagination
   const totalVendors = await Vendors.countDocuments(vendorIdFilter);
 
+  // Fetch bank details for these vendors (bankDetail.userId === vendor.vendorId)
+  const vendorUserIds = vendors
+    .map((v: any) => (v.vendorId && typeof v.vendorId === "object" ? v.vendorId._id : v.vendorId))
+    .filter(Boolean);
+
+  const bankDetails = await BankDetail.find({ userId: { $in: vendorUserIds } }).lean();
+  const bankDetailMap = new Map<string, any[]>();
+  bankDetails.forEach((bd: any) => {
+    const key = String(bd.userId);
+    const list = bankDetailMap.get(key) || [];
+    list.push(bd);
+    bankDetailMap.set(key, list);
+  });
+
   return {
-    data: vendors.map(sanitizeVendor),
+    data: vendors.map((v: any) => {
+      const key = String(v.vendorId && typeof v.vendorId === "object" ? v.vendorId._id : v.vendorId);
+      return sanitizeVendor(v, bankDetailMap.get(key) || []);
+    }),
     pagination: {
       page: resolvedPage,
       limit: resolvedLimit,
@@ -172,7 +212,10 @@ export async function getAllVendors(
 export async function getSingleVendor(id: string) {
   const vendor = await Vendors.findById(id).populate("vendorId", "name email phoneNumber isApproved");
   if (!vendor) throw new HttpError(404, "Vendor not found");
-  return sanitizeVendor(vendor);
+  const vendorUserId =
+    vendor.vendorId && typeof vendor.vendorId === "object" ? (vendor.vendorId as any)._id : vendor.vendorId;
+  const bankDetails = vendorUserId ? await BankDetail.find({ userId: vendorUserId }).lean() : [];
+  return sanitizeVendor(vendor, bankDetails || []);
 }
 
 export async function deleteVendor(vendorId: string) {
@@ -180,7 +223,7 @@ export async function deleteVendor(vendorId: string) {
   return true;
 }
 
-function sanitizeVendor(user: any) {
+function sanitizeVendor(user: any, bankDetails?: any[] | null) {
   const vendorUser = user.vendorId && typeof user.vendorId === "object"
     ? user.vendorId
     : null;
@@ -215,8 +258,20 @@ function sanitizeVendor(user: any) {
     deliveryTime: user.deliveryTime,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
-    status: user.status,
+    isOnline: user.isOnline,
     approvalStatus: user.approvalStatus,
-    approvalReason: user.approvalReason,
+    rejectReason: user.rejectReason,
+    bankDetails: Array.isArray(bankDetails)
+      ? bankDetails.map((bankDetail: any) => ({
+          id: String(bankDetail._id),
+          userId: String(bankDetail.userId),
+          accountNumber: bankDetail.accountNumber,
+          ibanNumber: bankDetail.ibanNumber,
+          bankName: bankDetail.bankName,
+          branchName: bankDetail.branchName,
+          isPrimary: bankDetail.isPrimary,
+          accountHolderName: bankDetail.accountHolderName,
+        }))
+      : [],
   };
 }

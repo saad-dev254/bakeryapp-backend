@@ -23,9 +23,9 @@ export interface IVendor extends Document {
     preOrder?: string;
     deliveryTime?: string;
     kitchenImages?: string[]; // Multiple kitchen images, optional
-    status: string;
+    isOnline: string;
     approvalStatus: string;
-    approvalReason: string;
+    rejectReason: string;
     created_at: Date;
     updated_at: Date;
 }
@@ -53,9 +53,9 @@ const vendorsSchema: Schema = new mongoose.Schema({
     preOrder: { type: String, required: true },
     deliveryTime: { type: String, required: true },
     kitchenImages: [{ type: String }], // Field for multiple kitchen images
-    status: { type: String, default: "online" },
-    approvalStatus: { type: String, required: true, default: "pending" },
-    approvalReason: { type: String, required: true, default: "Pending approval" },
+    isOnline: { type: String, required: true },
+    approvalStatus: { type: String, required: true },
+    rejectReason: { type: String },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }
 });

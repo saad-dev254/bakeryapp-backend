@@ -18,10 +18,6 @@ import { vendorRouter } from "./modules/vendor/vendors.routes";
 import { productRouter } from "./modules/product/product.routes";
 import { categoryRouter } from "./modules/category/category.routes";
 import { adOnRouter } from "./modules/adOns/adOns.routes";
-import { shipmentRouter } from "./modules/shipment/shipment.routes";
-import { countryRouter } from "./modules/country/country.routes";
-import { deliveryRouter } from "./modules/deliver-services/delivery.routes";
-import { cityRouter } from "./modules/city/city.routes";
 
 // ✅ JSON swagger import
 import swaggerDoc from "./docs/swagger.json";
@@ -77,7 +73,7 @@ export function createApp() {
 
   app.use("/api/health", healthRouter);
   app.use("/api/auth", authRouter);
-  app.use("/api", vendorRouter, riderRouter, productRouter, categoryRouter, adOnRouter, orderRouter, addressRouter, bankDetailRouter, shipmentRouter, countryRouter, deliveryRouter, cityRouter);
+  app.use("/api", vendorRouter, riderRouter, productRouter, categoryRouter, adOnRouter, orderRouter, addressRouter, bankDetailRouter);
 
   app.use(notFound);
   app.use(errorHandler);

@@ -12,12 +12,24 @@ riderRouter.post("/add-rider", requireAuth,
     { name: "riderImage", maxCount: 1 },
     { name: "riderCnicFrontImage", maxCount: 1 },
     { name: "riderCnicBackImage", maxCount: 1 },
+    { name: "drivingLicense", maxCount: 1 },
+    { name: "bikeRegistrationCard", maxCount: 1 },
+    { name: "riderSelfie", maxCount: 1 },
+    { name: "policeCharacterCertificate", maxCount: 1 },
+    { name: "bikeNumberPlateImage", maxCount: 1 },
   ]),
   createRider
 );
 riderRouter.put("/update-rider", requireAuth,
   riderImageUpload.fields([
     { name: "riderImage", maxCount: 1 },
+    { name: "riderCnicFrontImage", maxCount: 1 },
+    { name: "riderCnicBackImage", maxCount: 1 },
+    { name: "drivingLicense", maxCount: 1 },
+    { name: "bikeRegistrationCard", maxCount: 1 },
+    { name: "riderSelfie", maxCount: 1 },
+    { name: "policeCharacterCertificate", maxCount: 1 },
+    { name: "bikeNumberPlateImage", maxCount: 1 },
   ]),
   updateRider
 );

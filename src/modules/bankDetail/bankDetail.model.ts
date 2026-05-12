@@ -5,7 +5,9 @@ export interface IBankDetail extends Document {
     ibanNumber: string;
     bankName: string;
     accountHolderName: string;
-    userId?: mongoose.Types.ObjectId;
+    branchName: string;
+    isPrimary: boolean;
+    userId: mongoose.Types.ObjectId;
     created_at: Date;
     updated_at: Date;
 }
@@ -15,6 +17,8 @@ const bankDetailSchema: Schema = new mongoose.Schema({
     ibanNumber: { type: String, required: true },
     bankName: { type: String, required: true },
     accountHolderName: { type: String, required: true },
+    branchName: { type: String, required: true },
+    isPrimary: { type: Boolean, required: true },
     userId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     created_at: { type: Date, default: Date },
     updated_at: { type: Date, default: Date },

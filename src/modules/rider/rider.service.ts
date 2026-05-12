@@ -11,7 +11,19 @@ dto: {
   riderAddress?: string;
   riderLatitude?: number;
   riderLongitude?: number;
-  riderStatus: string;
+  riderDOB?: string;
+  drivingLicense?: string;
+  bikeRegistrationCard?: string;
+  riderSelfie?: string;
+  policeCharacterCertificate?: string;
+  bikeModel?: string;
+  bikeRegistrationNumber?: string;
+  bikeNumberPlateImage?: string;
+  vehicleType?: string;
+  fuelType?: string;
+  isOnline?: string;
+  approvalStatus?: string;
+  rejectReason?: string;
 }) {
   const exists = await Riders.findOne({ 
     $or: [
@@ -29,7 +41,19 @@ dto: {
     riderAddress: dto.riderAddress,
     riderLatitude: dto.riderLatitude,
     riderLongitude: dto.riderLongitude,
-    riderStatus: dto.riderStatus,
+    riderDOB: dto.riderDOB,
+    drivingLicense: dto.drivingLicense,
+    bikeRegistrationCard: dto.bikeRegistrationCard,
+    riderSelfie: dto.riderSelfie,
+    policeCharacterCertificate: dto.policeCharacterCertificate,
+    bikeModel: dto.bikeModel,
+    bikeRegistrationNumber: dto.bikeRegistrationNumber,
+    bikeNumberPlateImage: dto.bikeNumberPlateImage,
+    vehicleType: dto.vehicleType,
+    fuelType: dto.fuelType,
+    isOnline: dto.isOnline,
+    approvalStatus: dto.approvalStatus,
+    rejectReason: dto.rejectReason
   });
 
   return sanitizeRider(rider);
@@ -42,7 +66,19 @@ dto: {
   riderAddress?: string;
   riderLatitude?: number;
   riderLongitude?: number;
-  riderStatus?: string;
+  isOnline?: string;
+  riderDOB?: string;
+  drivingLicense?: string;
+  bikeRegistrationCard?: string;
+  riderSelfie?: string;
+  policeCharacterCertificate?: string;
+  bikeModel?: string;
+  bikeRegistrationNumber?: string;
+  bikeNumberPlateImage?: string;
+  vehicleType?: string;
+  fuelType?: string;
+  approvalStatus?: string;
+  rejectReason?: string;
 }) {
   const rider = await Riders.findById(id);
   if (!rider) throw new HttpError(404, "Rider not found");
@@ -55,7 +91,19 @@ dto: {
   if (dto.riderAddress) rider.riderAddress = dto.riderAddress;
   if (dto.riderLatitude) rider.riderLatitude = dto.riderLatitude;
   if (dto.riderLongitude) rider.riderLongitude = dto.riderLongitude;
-  if (dto.riderStatus) rider.riderStatus = dto.riderStatus;
+  if (dto.isOnline) rider.isOnline = dto.isOnline;
+  if (dto.riderDOB) rider.riderDOB = dto.riderDOB;
+  if (dto.drivingLicense) rider.drivingLicense = dto.drivingLicense;
+  if (dto.bikeRegistrationCard) rider.bikeRegistrationCard = dto.bikeRegistrationCard;
+  if (dto.riderSelfie) rider.riderSelfie = dto.riderSelfie;
+  if (dto.policeCharacterCertificate) rider.policeCharacterCertificate = dto.policeCharacterCertificate;
+  if (dto.bikeModel) rider.bikeModel = dto.bikeModel;
+  if (dto.bikeRegistrationNumber) rider.bikeRegistrationNumber = dto.bikeRegistrationNumber;
+  if (dto.bikeNumberPlateImage) rider.bikeNumberPlateImage = dto.bikeNumberPlateImage;
+  if (dto.vehicleType) rider.vehicleType = dto.vehicleType;
+  if (dto.fuelType) rider.fuelType = dto.fuelType;
+  if (dto.approvalStatus) rider.approvalStatus = dto.approvalStatus;
+  if (dto.rejectReason) rider.rejectReason = dto.rejectReason;
 
   await rider.save();
   const updatedRider = await Riders.findById(id).populate("riderId", "name email phoneNumber");

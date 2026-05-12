@@ -14,19 +14,19 @@ export const createVendorSchema = z.object({
     bakeryType: z.string().min(2),
     preOrder: z.string().min(2),
     deliveryTime: z.string().min(2),
-    status: z.string().min(2),
+    isOnline: z.string().min(2),
 
     vendorCnicFrontImage: z.string().min(2),
     vendorCnicBackImage: z.string().min(2),
     bakeryLogo: z.string().min(2),
     city: z.string().min(2),
-    area: z.string().min(2).optional(),
-    ntnNumber: z.string().min(2).optional(),
-    ntnImage: z.string().min(2).optional(),
+    area: z.string().optional(),
+    ntnNumber: z.string().optional(),
+    ntnImage: z.string().optional(),
     foodLicenseImage: z.string().min(2).optional(),
     kitchenImages: z.array(z.string().min(2)).optional(),
-    approvalStatus: z.string().min(2),
-    approvalReason: z.string().min(2),
+    approvalStatus: z.string().min(2).optional(),
+    rejectReason: z.string().optional(),
 }); 
 
 export const updateVendorSchema = z.object({
@@ -42,7 +42,7 @@ export const updateVendorSchema = z.object({
     bakeryType: z.string().min(2).optional(),
     preOrder: z.string().min(2).optional(),
     deliveryTime: z.string().min(2).optional(),
-    status: z.string().min(2).optional(),
+    isOnline: z.string().min(2).optional(),
     approvalStatus: z.string().min(2).optional(),
-    approvalReason: z.string().min(2).optional(),
+    rejectReason: z.string().optional(),
 });
