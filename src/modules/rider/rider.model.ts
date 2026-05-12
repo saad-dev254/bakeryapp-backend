@@ -11,12 +11,12 @@ export interface IRider extends Document {
     riderLongitude?: number;
     riderDOB?: string;
     drivingLicense?: string;
-    bikeRegistrationCard?: string;
+    vehicleRegistrationCard?: string;
     riderSelfie?: string;
     policeCharacterCertificate?: string;
-    bikeModel?: string;
-    bikeRegistrationNumber?: string;
-    bikeNumberPlateImage?: string;
+    vehicleModel?: string;
+    vehicleRegistrationNumber?: string;
+    vehicleNumberPlateImage?: string;
     vehicleType?: string;
     fuelType?: string;
     isOnline?: string;
@@ -37,12 +37,12 @@ const ridersSchema: Schema = new mongoose.Schema({
     riderLongitude: { type: Number, required: true },
     riderDOB: { type: String, required: true },
     drivingLicense: { type: String, required: true },
-    bikeRegistrationCard: { type: String, required: true },
+    vehicleRegistrationCard: { type: String, required: true },
     riderSelfie: { type: String, required: true },
     policeCharacterCertificate: { type: String },
-    bikeModel: { type: String, required: true },
-    bikeRegistrationNumber: { type: String, required: true },
-    bikeNumberPlateImage: { type: String, required: true },
+    vehicleModel: { type: String, required: true },
+    vehicleRegistrationNumber: { type: String, required: true },
+    vehicleNumberPlateImage: { type: String, required: true },
     vehicleType: { type: String, required: true },
     fuelType: { type: String },
     isOnline: { type: String, default: "online" },

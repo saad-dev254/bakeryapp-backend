@@ -10,19 +10,19 @@ export const createRider = asyncHandler(async (req: AuthRequest, res: Response) 
     const riderCnicFrontImage = files?.riderCnicFrontImage?.[0];
     const riderCnicBackImage = files?.riderCnicBackImage?.[0];
     const drivingLicense = files?.drivingLicense?.[0];
-    const bikeRegistrationCard = files?.bikeRegistrationCard?.[0];
+    const vehicleRegistrationCard = files?.vehicleRegistrationCard?.[0];
     const riderSelfie = files?.riderSelfie?.[0];
     const policeCharacterCertificate = files?.policeCharacterCertificate?.[0];
-    const bikeNumberPlateImage = files?.bikeNumberPlateImage?.[0];
+    const vehicleNumberPlateImage = files?.vehicleNumberPlateImage?.[0];
 
     if (riderImage) req.body.riderImage = `/uploads/riders/${riderImage.filename}`;
     if (riderCnicFrontImage) req.body.riderCnicFrontImage = `/uploads/riders/${riderCnicFrontImage.filename}`;
     if (riderCnicBackImage) req.body.riderCnicBackImage = `/uploads/riders/${riderCnicBackImage.filename}`;
     if (drivingLicense) req.body.drivingLicense = `/uploads/riders/${drivingLicense.filename}`;
-    if (bikeRegistrationCard) req.body.bikeRegistrationCard = `/uploads/riders/${bikeRegistrationCard.filename}`;
+    if (vehicleRegistrationCard) req.body.vehicleRegistrationCard = `/uploads/riders/${vehicleRegistrationCard.filename}`;
     if (riderSelfie) req.body.riderSelfie = `/uploads/riders/${riderSelfie.filename}`;
     if (policeCharacterCertificate) req.body.policeCharacterCertificate = `/uploads/riders/${policeCharacterCertificate.filename}`;
-    if (bikeNumberPlateImage) req.body.bikeNumberPlateImage = `/uploads/riders/${bikeNumberPlateImage.filename}`;
+    if (vehicleNumberPlateImage) req.body.vehicleNumberPlateImage = `/uploads/riders/${vehicleNumberPlateImage.filename}`;
 
     const { riderId } = req.body;
     const dto = createRiderSchema.parse(req.body);
@@ -36,19 +36,19 @@ export const updateRider = asyncHandler(async (req: AuthRequest, res: Response) 
     const riderCnicFrontImage = files?.riderCnicFrontImage?.[0];
     const riderCnicBackImage = files?.riderCnicBackImage?.[0];
     const drivingLicense = files?.drivingLicense?.[0];
-    const bikeRegistrationCard = files?.bikeRegistrationCard?.[0];
+    const vehicleRegistrationCard = files?.vehicleRegistrationCard?.[0];
     const riderSelfie = files?.riderSelfie?.[0];
     const policeCharacterCertificate = files?.policeCharacterCertificate?.[0];
-    const bikeNumberPlateImage = files?.bikeNumberPlateImage?.[0];
+    const vehicleNumberPlateImage = files?.vehicleNumberPlateImage?.[0];
 
     if (riderImage) req.body.riderImage = `/uploads/riders/${riderImage.filename}`;
     if (riderCnicFrontImage) req.body.riderCnicFrontImage = `/uploads/riders/${riderCnicFrontImage.filename}`;
     if (riderCnicBackImage) req.body.riderCnicBackImage = `/uploads/riders/${riderCnicBackImage.filename}`;
     if (drivingLicense) req.body.drivingLicense = `/uploads/riders/${drivingLicense.filename}`;
-    if (bikeRegistrationCard) req.body.bikeRegistrationCard = `/uploads/riders/${bikeRegistrationCard.filename}`;
+    if (vehicleRegistrationCard) req.body.vehicleRegistrationCard = `/uploads/riders/${vehicleRegistrationCard.filename}`;
     if (riderSelfie) req.body.riderSelfie = `/uploads/riders/${riderSelfie.filename}`;
     if (policeCharacterCertificate) req.body.policeCharacterCertificate = `/uploads/riders/${policeCharacterCertificate.filename}`;
-    if (bikeNumberPlateImage) req.body.bikeNumberPlateImage = `/uploads/riders/${bikeNumberPlateImage.filename}`;
+    if (vehicleNumberPlateImage) req.body.vehicleNumberPlateImage = `/uploads/riders/${vehicleNumberPlateImage.filename}`;
 
     const { id } = req.body;
     const dto = updateRiderSchema.parse(req.body);

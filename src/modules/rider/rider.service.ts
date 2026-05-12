@@ -1,5 +1,6 @@
 import { HttpError } from "../../utils/httpError";
 import { User } from "../auth/user.model";
+import BankDetail from "../bankDetail/bankDetail.model";
 import Riders from "./rider.model";
 
 export async function createRider(riderId: string,
@@ -13,12 +14,12 @@ dto: {
   riderLongitude?: number;
   riderDOB?: string;
   drivingLicense?: string;
-  bikeRegistrationCard?: string;
+  vehicleRegistrationCard?: string;
   riderSelfie?: string;
   policeCharacterCertificate?: string;
-  bikeModel?: string;
-  bikeRegistrationNumber?: string;
-  bikeNumberPlateImage?: string;
+  vehicleModel?: string;
+  vehicleRegistrationNumber?: string;
+  vehicleNumberPlateImage?: string;
   vehicleType?: string;
   fuelType?: string;
   isOnline?: string;
@@ -43,17 +44,17 @@ dto: {
     riderLongitude: dto.riderLongitude,
     riderDOB: dto.riderDOB,
     drivingLicense: dto.drivingLicense,
-    bikeRegistrationCard: dto.bikeRegistrationCard,
+    vehicleRegistrationCard: dto.vehicleRegistrationCard,
     riderSelfie: dto.riderSelfie,
     policeCharacterCertificate: dto.policeCharacterCertificate,
-    bikeModel: dto.bikeModel,
-    bikeRegistrationNumber: dto.bikeRegistrationNumber,
-    bikeNumberPlateImage: dto.bikeNumberPlateImage,
+    vehicleModel: dto.vehicleModel,
+    vehicleRegistrationNumber: dto.vehicleRegistrationNumber,
+    vehicleNumberPlateImage: dto.vehicleNumberPlateImage,
     vehicleType: dto.vehicleType,
     fuelType: dto.fuelType,
     isOnline: dto.isOnline,
-    approvalStatus: dto.approvalStatus,
-    rejectReason: dto.rejectReason
+    approvalStatus: "pending",
+    rejectReason: "",
   });
 
   return sanitizeRider(rider);
@@ -69,12 +70,12 @@ dto: {
   isOnline?: string;
   riderDOB?: string;
   drivingLicense?: string;
-  bikeRegistrationCard?: string;
+  vehicleRegistrationCard?: string;
   riderSelfie?: string;
   policeCharacterCertificate?: string;
-  bikeModel?: string;
-  bikeRegistrationNumber?: string;
-  bikeNumberPlateImage?: string;
+  vehicleModel?: string;
+  vehicleRegistrationNumber?: string;
+  vehicleNumberPlateImage?: string;
   vehicleType?: string;
   fuelType?: string;
   approvalStatus?: string;
@@ -94,12 +95,12 @@ dto: {
   if (dto.isOnline) rider.isOnline = dto.isOnline;
   if (dto.riderDOB) rider.riderDOB = dto.riderDOB;
   if (dto.drivingLicense) rider.drivingLicense = dto.drivingLicense;
-  if (dto.bikeRegistrationCard) rider.bikeRegistrationCard = dto.bikeRegistrationCard;
+  if (dto.vehicleRegistrationCard) rider.vehicleRegistrationCard = dto.vehicleRegistrationCard;
   if (dto.riderSelfie) rider.riderSelfie = dto.riderSelfie;
   if (dto.policeCharacterCertificate) rider.policeCharacterCertificate = dto.policeCharacterCertificate;
-  if (dto.bikeModel) rider.bikeModel = dto.bikeModel;
-  if (dto.bikeRegistrationNumber) rider.bikeRegistrationNumber = dto.bikeRegistrationNumber;
-  if (dto.bikeNumberPlateImage) rider.bikeNumberPlateImage = dto.bikeNumberPlateImage;
+  if (dto.vehicleModel) rider.vehicleModel = dto.vehicleModel;
+  if (dto.vehicleRegistrationNumber) rider.vehicleRegistrationNumber = dto.vehicleRegistrationNumber;
+  if (dto.vehicleNumberPlateImage) rider.vehicleNumberPlateImage = dto.vehicleNumberPlateImage;
   if (dto.vehicleType) rider.vehicleType = dto.vehicleType;
   if (dto.fuelType) rider.fuelType = dto.fuelType;
   if (dto.approvalStatus) rider.approvalStatus = dto.approvalStatus;
@@ -156,8 +157,25 @@ export async function getAllRiders(
   // Total count for pagination metadata
   const totalRiders = await Riders.countDocuments(riderIdFilter);
 
+  // Fetch bank details for these riders (bankDetail.userId === riders.riderId)
+  const riderUserIds = riders
+    .map((v: any) => (v.riderId && typeof v.riderId === "object" ? v.riderId._id : v.riderId))
+    .filter(Boolean);
+
+  const bankDetails = await BankDetail.find({ userId: { $in: riderUserIds } }).lean();
+  const bankDetailMap = new Map<string, any[]>();
+  bankDetails.forEach((bd: any) => {
+    const key = String(bd.userId);
+    const list = bankDetailMap.get(key) || [];
+    list.push(bd);
+    bankDetailMap.set(key, list);
+  });
+
   return {
-    data: riders.map(sanitizeRider),
+    data: riders.map((v: any) => {
+      const key = String(v.riderId && typeof v.riderId === "object" ? v.riderId._id : v.riderId);
+      return sanitizeRider(v, bankDetailMap.get(key) || []);
+    }),
     pagination: {
       page: resolvedPage,
       limit: resolvedLimit,
@@ -170,7 +188,10 @@ export async function getAllRiders(
 export async function getSingleRider(id: string) {
   const rider = await Riders.findById(id).populate("riderId", "name email phoneNumber");
   if (!rider) throw new HttpError(404, "Rider not found");
-  return sanitizeRider(rider);
+  const riderUserId =
+    rider.riderId && typeof rider.riderId === "object" ? (rider.riderId as any)._id : rider.riderId;
+  const bankDetails = riderUserId ? await BankDetail.find({ userId: riderUserId }).lean() : [];
+  return sanitizeRider(rider, bankDetails || []);
 }
 
 export async function deleteRider(riderId: string) {
@@ -178,7 +199,7 @@ export async function deleteRider(riderId: string) {
   return true;
 }
 
-function sanitizeRider(user: any) {
+function sanitizeRider(user: any, bankDetails?: any[] | null) {
   const riderUser = user.riderId && typeof user.riderId === "object"
     ? user.riderId
     : null;
@@ -197,6 +218,30 @@ function sanitizeRider(user: any) {
     riderAddress: user.riderAddress,
     riderLatitude: user.riderLatitude,
     riderLongitude: user.riderLongitude,
-    riderStatus: user.riderStatus,
+    riderDOB: user.riderDOB,
+    drivingLicense: user.drivingLicense,
+    riderSelfie: user.riderSelfie,
+    policeCharacterCertificate: user.policeCharacterCertificate,
+    vehicleModel: user.vehicleModel,
+    vehicleRegistrationCard: user.vehicleRegistrationCard,
+    vehicleRegistrationNumber: user.vehicleRegistrationNumber,
+    vehicleNumberPlateImage: user.vehicleNumberPlateImage,
+    vehicleType: user.vehicleType,
+    fuelType: user.fuelType,
+    isOnline: user.isOnline,
+    approvalStatus: user.approvalStatus,
+    rejectReason: user.rejectReason,
+    bankDetails: Array.isArray(bankDetails)
+      ? bankDetails.map((bankDetail: any) => ({
+          id: String(bankDetail._id),
+          userId: String(bankDetail.userId),
+          accountNumber: bankDetail.accountNumber,
+          ibanNumber: bankDetail.ibanNumber,
+          bankName: bankDetail.bankName,
+          branchName: bankDetail.branchName,
+          isPrimary: bankDetail.isPrimary,
+          accountHolderName: bankDetail.accountHolderName,
+        }))
+      : [],
   };
 }

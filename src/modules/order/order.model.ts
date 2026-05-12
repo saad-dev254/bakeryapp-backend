@@ -27,6 +27,8 @@ export interface IOrder extends Document {
     deliveryCharges?: string;
     discountAmount?: string;
     totalAmount?: string;
+    bookingDate?: Date;
+    bookingTime?: Date;
 
     // product keys
     productName?: string;
@@ -86,6 +88,8 @@ const orderSchema: Schema = new mongoose.Schema({
     totalAmount: { type: String, required: true },
 
     // product keys
+    bookingDate: { type: Date, required: true },
+    bookingTime: { type: Date, required: true },
     productName: { type: String, required: true },
     productImage: { type: String, required: true },
     productDescription: { type: String, required: true },
