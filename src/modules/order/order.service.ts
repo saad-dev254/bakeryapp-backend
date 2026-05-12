@@ -2,7 +2,7 @@ import { HttpError } from "../../utils/httpError";
 import mongoose from "mongoose";
 import Order from "./order.model";
 
-type AddOnItem = {
+type AdOnItem = {
   name: string;
   price: string;
 };
@@ -35,7 +35,7 @@ dto: {
   productImage: string,
   productDescription: string,
   productPrice: string,
-  addOnList: AddOnItem[],
+  adOnList: AdOnItem[],
 
   // bakery/vendor keys
   vendorId: string,
@@ -89,7 +89,7 @@ dto: {
     productImage: dto.productImage,
     productDescription: dto.productDescription,
     productPrice: dto.productPrice,
-    addOnList: dto.addOnList,
+    adOnList: dto.adOnList,
 
     // bakery/vendor keys
     vendorId: dto.vendorId,
@@ -307,7 +307,7 @@ function sanitizeOrder(order: any) {
     productImage: order.productImage,
     productDescription: order.productDescription,
     productPrice: order.productPrice,
-    addOnList: order.addOnList,
+    adOnList: order.adOnList,
 
     // bakery/vendor keys
     vendorId: String(order.vendorId),

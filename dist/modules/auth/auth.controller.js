@@ -115,7 +115,7 @@ exports.updateMe = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const files = req.files;
     const userImage = files?.userImage?.[0];
     if (userImage)
-        req.body.userImage = `${env_1.env.APP_URL}/uploads/users/${userImage.filename}`;
+        req.body.userImage = `/uploads/users/${userImage.filename}`;
     const dto = auth_validation_1.updateProfileSchema.parse(req.body);
     const user = await AuthService.updateMe(req.body?.id, dto);
     res.json({ success: true, message: "Profile updated", data: user });

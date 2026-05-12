@@ -17,7 +17,7 @@ import { authRouter } from "./modules/auth/auth.routes";
 import { vendorRouter } from "./modules/vendor/vendors.routes";
 import { productRouter } from "./modules/product/product.routes";
 import { categoryRouter } from "./modules/category/category.routes";
-import { addOnRouter } from "./modules/addOns/addOns.routes";
+import { adOnRouter } from "./modules/adOns/adOns.routes";
 import { shipmentRouter } from "./modules/shipment/shipment.routes";
 import { countryRouter } from "./modules/country/country.routes";
 import { deliveryRouter } from "./modules/deliver-services/delivery.routes";
@@ -28,6 +28,7 @@ import swaggerDoc from "./docs/swagger.json";
 import { orderRouter } from "./modules/order/order.routes";
 import { riderRouter } from "./modules/rider/rider.routes";
 import { addressRouter } from "./modules/userAddress/userAddress.routes";
+import { bankDetailRouter } from "./modules/bankDetail/bankDetail.routes";
 
 export function createApp() {
   const app = express();
@@ -76,7 +77,7 @@ export function createApp() {
 
   app.use("/api/health", healthRouter);
   app.use("/api/auth", authRouter);
-  app.use("/api", vendorRouter, riderRouter, productRouter, categoryRouter, addOnRouter, orderRouter, addressRouter, shipmentRouter, countryRouter, deliveryRouter, cityRouter);
+  app.use("/api", vendorRouter, riderRouter, productRouter, categoryRouter, adOnRouter, orderRouter, addressRouter, bankDetailRouter, shipmentRouter, countryRouter, deliveryRouter, cityRouter);
 
   app.use(notFound);
   app.use(errorHandler);

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
-interface IAddOnItem {
+interface IAdOnItem {
     name: string;
     price: string;
 }
@@ -33,7 +33,7 @@ export interface IOrder extends Document {
     productImage?: string;
     productDescription?: string;
     productPrice?: string;
-    addOnList?: IAddOnItem[];
+    adOnList?: IAdOnItem[];
 
     // bakery/vendor keys
     vendorId?: mongoose.Types.ObjectId;
@@ -90,7 +90,7 @@ const orderSchema: Schema = new mongoose.Schema({
     productImage: { type: String, required: true },
     productDescription: { type: String, required: true },
     productPrice: { type: String, required: true },
-    addOnList: {
+    adOnList: {
         type: [
             {
                 name: { type: String, required: true },

@@ -37,11 +37,10 @@ exports.deleteProduct = exports.getSingleProduct = exports.getAllProducts = expo
 const asyncHandler_1 = require("../../utils/asyncHandler");
 const ProductService = __importStar(require("./product.service"));
 const product_validation_1 = require("./product.validation");
-const env_1 = require("../../config/env");
 exports.createProduct = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const uploadedFile = req.file;
     if (uploadedFile) {
-        req.body.productImage = `${env_1.env.APP_URL}/uploads/products/${uploadedFile.filename}`;
+        req.body.productImage = `/uploads/products/${uploadedFile.filename}`;
     }
     const { vendorId } = req.body;
     const dto = product_validation_1.createProductSchema.parse(req.body);
@@ -51,7 +50,7 @@ exports.createProduct = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
 exports.updateProduct = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const uploadedFile = req.file;
     if (uploadedFile) {
-        req.body.productImage = `${env_1.env.APP_URL}/uploads/products/${uploadedFile.filename}`;
+        req.body.productImage = `/uploads/products/${uploadedFile.filename}`;
     }
     const { id } = req.body;
     const dto = product_validation_1.updateProductSchema.parse(req.body);

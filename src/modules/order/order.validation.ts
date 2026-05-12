@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const addOnItemSchema = z.object({
+const adOnItemSchema = z.object({
     name: z.string().min(1),
     price: z.string().min(1),
 });
@@ -32,7 +32,7 @@ export const createOrderSchema = z.object({
     productImage: z.string().min(2),
     productDescription: z.string().min(2),
     productPrice: z.string().min(2),
-    addOnList: z.array(addOnItemSchema).optional().default([]),
+    adOnList: z.array(adOnItemSchema).optional().default([]),
 
     // bakery/vendor keys
     vendorId: z.string().min(2),

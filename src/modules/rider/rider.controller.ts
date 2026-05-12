@@ -3,7 +3,6 @@ import { asyncHandler } from "../../utils/asyncHandler";
 import { AuthRequest } from "../auth/auth.middleware";
 import * as RiderService from "./rider.service";
 import { createRiderSchema, updateRiderSchema } from "./rider.validation";
-import { env } from "../../config/env";
 
 export const createRider = asyncHandler(async (req: AuthRequest, res: Response) => {
     const files = (req as Request & { files?: Record<string, Express.Multer.File[]> }).files;

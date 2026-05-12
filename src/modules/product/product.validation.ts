@@ -9,7 +9,7 @@ export const createProductSchema = z.object({
     discountAmount: z.string().optional(),
     discountType: z.string().optional(),
     categoryId: z.string().min(2),
-    addOnIds: z.array(z.string()).optional(),
+    adOnIds: z.array(z.string()).optional(),
 });
 
 export const updateProductSchema = z.object({
@@ -20,5 +20,5 @@ export const updateProductSchema = z.object({
     discountAmount: z.string().min(2).optional(),
     discountType: z.string().min(2).optional(),
     categoryId: z.string().min(2).optional(),
-    addOnIds: z.array(z.string().min(2)).optional(),
+    adOnIds: z.array(z.string().min(2)).optional(),
 });
