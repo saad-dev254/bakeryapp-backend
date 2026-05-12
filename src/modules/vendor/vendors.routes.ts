@@ -20,7 +20,7 @@ vendorRouter.post("/add-vendor", requireAuth,
     createVendor
 );
 // vendorRouter.put("/update-vendor", requireAuth, vendorImageUpload.single("bakeryImage"), updateVendor);
-vendorRouter.post("/update-vendor", requireAuth,
+vendorRouter.put("/update-vendor", requireAuth,
     vendorImageUpload.fields([
       { name: "bakeryImage", maxCount: 1 },
       { name: "vendorCnicFrontImage", maxCount: 1 },
