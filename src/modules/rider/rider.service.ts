@@ -113,7 +113,7 @@ dto: {
 }
 
 export async function getAllRiders(
-  isApproved?: boolean,
+  approvalStatus?: string,
   page?: number,
   limit?: number
 ) {
@@ -124,16 +124,14 @@ export async function getAllRiders(
   // Calculate skip for pagination
   const skip = (resolvedPage - 1) * resolvedLimit;
 
-  // Filter for Riders based on isApproved status in User (joined doc)
+  // Custom filter logic for "reject": show both 'reject' and 'blocked' riders
   let riderIdFilter: any = {};
-  if (isApproved !== undefined) {
-    // Find users with isApproved and get their IDs for filter
-    const users = await User.find({ isApproved }).select("_id").lean();
-    const allowedRiderIds = users.map(u => u._id);
-    if (!allowedRiderIds.length) {
-      throw new HttpError(404, "No riders found");
+  if (approvalStatus && approvalStatus !== "") {
+    if (approvalStatus === "reject") {
+      riderIdFilter.approvalStatus = { $in: ["reject", "blocked"] };
+    } else {
+      riderIdFilter.approvalStatus = approvalStatus;
     }
-    riderIdFilter.riderId = { $in: allowedRiderIds };
   }
 
   // Build the populate object

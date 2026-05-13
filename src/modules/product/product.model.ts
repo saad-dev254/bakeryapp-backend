@@ -14,7 +14,7 @@ export interface IProduct extends Document {
 }
 
 const productsSchema: Schema = new mongoose.Schema({
-    vendorId: { type: Schema.Types.ObjectId, required: true },
+    vendorId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     productName: { type: String, required: true },
     productImage: { type: String, required: true },
     productDescription: { type: String, required: true },

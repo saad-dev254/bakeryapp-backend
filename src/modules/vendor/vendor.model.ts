@@ -54,8 +54,8 @@ const vendorsSchema: Schema = new mongoose.Schema({
     deliveryTime: { type: String, required: true },
     kitchenImages: [{ type: String }], // Field for multiple kitchen images
     isOnline: { type: String, required: true },
-    approvalStatus: { type: String, required: true },
-    rejectReason: { type: String },
+    approvalStatus: { type: String, required: true, default: "pending" },
+    rejectReason: { type: String, default: "" },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }
 });

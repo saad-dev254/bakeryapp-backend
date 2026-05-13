@@ -61,8 +61,6 @@ dto: {
     deliveryTime: dto.deliveryTime,
     isOnline: dto.isOnline,
     kitchenImages: dto.kitchenImages,
-    approvalStatus: "pending",
-    rejectReason: "",
   });
 
   return sanitizeVendor(vendor);
@@ -136,7 +134,7 @@ dto: {
 }
 
 export async function getAllVendors(
-  isApproved?: boolean,
+  approvalStatus?: string,
   page?: number,
   limit?: number
 ) {
@@ -147,17 +145,14 @@ export async function getAllVendors(
   // Calculate skip for pagination
   const skip = (resolvedPage - 1) * resolvedLimit;
 
-  // Filter for Vendors based on isApproved status (against the joined User doc)
-  // We'll collect vendorIds of Users with the correct isApproved if filter applied
-  let vendorIdFilter: any = {};
-  if (isApproved !== undefined) {
-    // Find user IDs that match isApproved, then fetch vendors for those
-    const users = await User.find({ isApproved }).select("_id").lean();
-    const allowedVendorIds = users.map(u => u._id);
-    if (!allowedVendorIds.length) {
-      throw new HttpError(404, "No vendors found");
+  // Custom filter logic for "reject": show both 'reject' and 'blocked' vendors
+  let vendorFilter: any = {};
+  if (approvalStatus && approvalStatus !== "") {
+    if (approvalStatus === "reject") {
+      vendorFilter.approvalStatus = { $in: ["reject", "blocked"] };
+    } else {
+      vendorFilter.approvalStatus = approvalStatus;
     }
-    vendorIdFilter.vendorId = { $in: allowedVendorIds };
   }
 
   // Build the populate object
@@ -166,8 +161,8 @@ export async function getAllVendors(
     select: "name email phoneNumber isApproved",
   };
 
-  // Find vendors and sort by creation (latest first)
-  let vendors = await Vendors.find(vendorIdFilter)
+  // Find vendors by status if provided, otherwise fetch all. Sort by latest.
+  let vendors = await Vendors.find(vendorFilter)
     .populate(populate)
     .sort({ createdAt: -1 })
     .skip(skip)
@@ -178,8 +173,8 @@ export async function getAllVendors(
 
   if (!vendors || vendors.length === 0) throw new HttpError(404, "No vendors found");
 
-  // Get the total count for pagination
-  const totalVendors = await Vendors.countDocuments(vendorIdFilter);
+  // Get the total count for pagination, filtered by approvalStatus if provided
+  const totalVendors = await Vendors.countDocuments(vendorFilter);
 
   // Fetch bank details for these vendors (bankDetail.userId === vendor.vendorId)
   const vendorUserIds = vendors
