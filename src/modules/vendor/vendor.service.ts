@@ -148,7 +148,7 @@ export async function getAllVendors(
   // Custom filter logic for "reject": show both 'reject' and 'blocked' vendors
   let vendorFilter: any = {};
   if (approvalStatus && approvalStatus !== "") {
-    if (approvalStatus === "reject") {
+    if (approvalStatus === "reject" || approvalStatus === "blocked") {
       vendorFilter.approvalStatus = { $in: ["reject", "blocked"] };
     } else {
       vendorFilter.approvalStatus = approvalStatus;
@@ -174,7 +174,13 @@ export async function getAllVendors(
   if (!vendors || vendors.length === 0) throw new HttpError(404, "No vendors found");
 
   // Get the total count for pagination, filtered by approvalStatus if provided
-  const totalVendors = await Vendors.countDocuments(vendorFilter);
+  // Fix: Only count vendors that actually have a populated vendorId (consistent with what is returned above)
+  // Otherwise total may include deleted users' vendors not returned in `data`
+  // So, fetch all vendors with current filter and populated vendorId and use that length as total
+  const allVendorsWithUser = await Vendors.find(vendorFilter)
+    .populate(populate)
+    .then(list => list.filter(v => v.vendorId));
+  const totalVendors = allVendorsWithUser.length;
 
   // Fetch bank details for these vendors (bankDetail.userId === vendor.vendorId)
   const vendorUserIds = vendors

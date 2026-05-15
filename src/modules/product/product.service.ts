@@ -1,19 +1,66 @@
 import { HttpError } from "../../utils/httpError";
 import Products from "./product.model";
-import Vendors from "../vendor/vendor.model"; // Import Vendors model
+import Vendors from "../vendor/vendor.model";
+import Settings from "../settings/settings.model";
 
-export async function createProduct(
-  vendorId: string,
-  dto: {
-    productName?: string;
-    productImage?: string;
-    productDescription?: string;
-    productPrice?: string;
-    discountAmount?: string;
-    discountType?: string;
-    categoryId?: any;
+// Global helper to filter vendors within a certain KM radius, with approval check
+async function getVendorsWithinRadius(latitude: number, longitude: number) {
+  const setting = await Settings.findOne();
+  const radiusKm = setting && setting.radiusInKM ? parseFloat(setting.radiusInKM) : 10;
+  const EARTH_RADIUS = 6378.1;
+
+  if (
+    typeof latitude !== "number" ||
+    typeof longitude !== "number" ||
+    isNaN(latitude) ||
+    isNaN(longitude)
+  ) {
+    throw new HttpError(400, "Invalid latitude or longitude");
   }
-) {
+
+  const allVendors = await Vendors.find({
+    bakeryLatitude: { $ne: null },
+    bakeryLongitude: { $ne: null },
+  }).lean();
+
+  const approvedVendors = allVendors.filter((vendor: any) =>
+    vendor.approvalStatus === "approved"
+  );
+
+  const vendorsWithinRadius = approvedVendors.filter((vendor: any) => {
+    const vendorLat = parseFloat(vendor.bakeryLatitude);
+    const vendorLng = parseFloat(vendor.bakeryLongitude);
+
+    if (isNaN(vendorLat) || isNaN(vendorLng)) return false;
+
+    const toRad = (v: number) => (v * Math.PI) / 180;
+    const dLat = toRad(vendorLat - latitude);
+    const dLon = toRad(vendorLng - longitude);
+    const lat1 = toRad(latitude);
+    const lat2 = toRad(vendorLat);
+
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = EARTH_RADIUS * c;
+
+    return distance <= radiusKm;
+  });
+
+  return vendorsWithinRadius;
+}
+
+export async function createProduct(vendorId: string,
+dto: {
+  productName?: string;
+  productImage?: string;
+  productDescription?: string;
+  productPrice?: string;
+  discountAmount?: string;
+  discountType?: string;
+  categoryId?: any;
+}) {
   const product = await Products.create({
     vendorId: vendorId,
     productName: dto.productName,
@@ -34,18 +81,16 @@ export async function createProduct(
   return sanitizeProduct(product, bakeryDetail);
 }
 
-export async function updateProduct(
-  id: string,
-  dto: {
-    productName?: string;
-    productImage?: string;
-    productDescription?: string;
-    productPrice?: string;
-    discountAmount?: string;
-    discountType?: string;
-    categoryId?: any;
-  }
-) {
+export async function updateProduct(id: string,
+dto: {
+  productName?: string;
+  productImage?: string;
+  productDescription?: string;
+  productPrice?: string;
+  discountAmount?: string;
+  discountType?: string;
+  categoryId?: any;
+}) {
   const product = await Products.findById(id);
   if (!product) throw new HttpError(404, "Product not found");
 
@@ -122,85 +167,91 @@ export async function deleteProduct(id: string) {
   return true;
 }
 
-// Find products for bakeries within a 1km radius of provided user lat/lng  
+// Find products for bakeries within a provided km radius of provided user lat/lng
 export async function getNearbyBakeryProducts(latitude: number, longitude: number) {
-  // Convert 1km to radians (distance in meters / radius of Earth)
-  const RADIUS_KM = 1;
-  const EARTH_RADIUS = 6378.1; // in KM
-
-  if (
-    typeof latitude !== "number" ||
-    typeof longitude !== "number" ||
-    isNaN(latitude) ||
-    isNaN(longitude)
-  ) {
-    throw new HttpError(400, "Invalid latitude or longitude");
-  }
-
-  // Step 1: Find all vendors with valid lat/lng (approvalStatus/isOnline will be filtered in JS, not in Mongoose)
-  // This avoids schema errors for unknown fields in the filter object.
-  const nearbyVendors = await Vendors.find({
-    bakeryLatitude: { $ne: null },
-    bakeryLongitude: { $ne: null }
-  }).lean();
-
-  // Now filter in JS for other expected fields (allowing for missing schema-mapped fields)
-  const filteredVendors = nearbyVendors.filter((vendor: any) =>
-    vendor.approvalStatus === "approved" &&
-    vendor.isOnline === true
-  );
-
-  // Calculate the haversine distance for each filtered vendor and filter by 1km
-  const vendorsWithinRadius = filteredVendors.filter((vendor: any) => {
-    if (
-      typeof vendor.bakeryLatitude !== "number" ||
-      typeof vendor.bakeryLongitude !== "number"
-    )
-      return false;
-    const toRad = (v: number) => (v * Math.PI) / 180;
-    const dLat = toRad(vendor.bakeryLatitude - latitude);
-    const dLon = toRad(vendor.bakeryLongitude - longitude);
-    const lat1 = toRad(latitude);
-    const lat2 = toRad(vendor.bakeryLatitude);
-
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = EARTH_RADIUS * c;
-    return distance <= RADIUS_KM;
-  });
+  const vendorsWithinRadius = await getVendorsWithinRadius(latitude, longitude);
 
   if (vendorsWithinRadius.length === 0) {
-    throw new HttpError(404, "No bakery found within 1km radius");
+    throw new HttpError(404, "No bakery available in your location");
   }
 
-  // Step 2: Get all vendorIds for these bakeries
   const vendorIds = vendorsWithinRadius.map((v: any) =>
     v.vendorId ? v.vendorId.toString() : ""
   ).filter(Boolean);
 
   if (vendorIds.length === 0) {
-    throw new HttpError(404, "No bakery found within 1km radius");
+    throw new HttpError(404, "No bakery available in your location");
   }
 
-  // Step 3: Find all products for these vendors
-  // Populate categoryId as in other functions
+  // Fetch all products for found vendor IDs
+  const products = await Products.find({ vendorId: { $in: vendorIds } }).populate("categoryId", "categoryName");
+
+  // Organize products into home and shop bakeryTypes
+  const homeBaseBakeries: any[] = [];
+  const shopBaseBakeries: any[] = [];
+
+  await Promise.all(
+    products.map(async (product: any) => {
+      // Find the vendor of this product
+      let vendor = vendorsWithinRadius.find((v: any) =>
+        v.vendorId && v.vendorId.toString() === product.vendorId.toString()
+      );
+      let fullVendor = vendor;
+      if (fullVendor && !fullVendor.vendorId) {
+        const found = await Vendors.findOne({ vendorId: product.vendorId }).populate("vendorId");
+        fullVendor = found === null ? undefined : found;
+      }
+      const bakeryDetail = fullVendor ? sanitizeBakeryDetail(fullVendor) : null;
+      const prodObj = sanitizeProduct(product, bakeryDetail);
+
+      // Split into home/shop
+      if (fullVendor && fullVendor.bakeryType && fullVendor.bakeryType.toLowerCase() === "home") {
+        homeBaseBakeries.push(prodObj);
+      } else if (fullVendor && fullVendor.bakeryType && fullVendor.bakeryType.toLowerCase() === "shop") {
+        shopBaseBakeries.push(prodObj);
+      }
+    })
+  );
+
+  return { homeBaseBakeries, shopBaseBakeries };
+}
+
+// Find products for bakeries within a provided km radius of provided user lat/lng and category ID
+export async function getNearbyBakeryProductsByCategory(
+  latitude: number,
+  longitude: number,
+  categoryId: string
+) {
+  if (!categoryId) {
+    throw new HttpError(400, "Category Id is required");
+  }
+
+  // Use global helper to get vendors within radius
+  const vendorsWithinRadius = await getVendorsWithinRadius(latitude, longitude);
+
+  if (vendorsWithinRadius.length === 0) {
+    throw new HttpError(404, "No bakery available in your location");
+  }
+
+  const vendorIds = vendorsWithinRadius.map((v: any) =>
+    v.vendorId ? v.vendorId.toString() : ""
+  ).filter(Boolean);
+
+  if (vendorIds.length === 0) {
+    throw new HttpError(404, "No bakery available in your location");
+  }
+
+  // Fetch only products of the given category and vendorIds within radius
   const products = await Products.find({
-    vendorId: { $in: vendorIds }
+    vendorId: { $in: vendorIds },
+    categoryId: categoryId
   }).populate("categoryId", "categoryName");
 
-  if (!products || products.length === 0) {
-    throw new HttpError(404, "No products found in bakeries within 1km radius");
-  }
-
-  // For each product, attach corresponding bakeryDetail
   return await Promise.all(
     products.map(async (product: any) => {
       const vendor = vendorsWithinRadius.find((v: any) =>
         v.vendorId && v.vendorId.toString() === product.vendorId.toString()
       );
-      // Populate vendorId in case it's needed for sanitizeBakeryDetail (mimic previous logic)
       let fullVendor = vendor;
       if (fullVendor && !fullVendor.vendorId) {
         const found = await Vendors.findOne({ vendorId: product.vendorId }).populate("vendorId");
@@ -211,7 +262,6 @@ export async function getNearbyBakeryProducts(latitude: number, longitude: numbe
     })
   );
 }
-
 
 // Accept bakeryDetail as argument and attach to return object
 function sanitizeProduct(product: any, bakeryDetail?: any) {
@@ -252,10 +302,10 @@ function sanitizeBakeryDetail(vendor: any) {
     id: String(vendor._id),
     vendorId: String(vendor.vendorId && vendor.vendorId._id ? vendor.vendorId._id : vendor.vendorId),
     vendorName: userObj?.name,
-    vendorEmail: userObj?.email,
-    vendorMobileNo: userObj?.phoneNumber,
-    vendorIsApproved: userObj?.isApproved,
-    vendorDesignation: vendor.vendorDesignation,
+    // vendorEmail: userObj?.email,
+    // vendorMobileNo: userObj?.phoneNumber,
+    // vendorIsApproved: userObj?.isApproved,
+    // vendorDesignation: vendor.vendorDesignation,
     // vendorCnicNumber: vendor.vendorCnicNumber,
     // vendorCnicFrontImage: vendor.vendorCnicFrontImage,
     // vendorCnicBackImage: vendor.vendorCnicBackImage,
@@ -269,7 +319,7 @@ function sanitizeBakeryDetail(vendor: any) {
     area: vendor.area,
     // ntnNumber: vendor.ntnNumber,
     // ntnImage: vendor.ntnImage,
-    foodLicenseImage: vendor.foodLicenseImage,
+    // foodLicenseImage: vendor.foodLicenseImage,
     openingTime: vendor.openingTime,
     closingTime: vendor.closingTime,
     bakeryType: vendor.bakeryType,
@@ -277,9 +327,9 @@ function sanitizeBakeryDetail(vendor: any) {
     deliveryTime: vendor.deliveryTime,
     isOnline: vendor.isOnline,
     kitchenImages: vendor.kitchenImages,
-    approvalStatus: vendor.approvalStatus,
-    rejectReason: vendor.rejectReason,
-    createdAt: vendor.createdAt,
-    updatedAt: vendor.updatedAt,
+    // approvalStatus: vendor.approvalStatus,
+    // rejectReason: vendor.rejectReason,
+    // createdAt: vendor.createdAt,
+    // updatedAt: vendor.updatedAt,
   };
 }

@@ -127,7 +127,7 @@ export async function getAllRiders(
   // Custom filter logic for "reject": show both 'reject' and 'blocked' riders
   let riderIdFilter: any = {};
   if (approvalStatus && approvalStatus !== "") {
-    if (approvalStatus === "reject") {
+    if (approvalStatus === "reject" || approvalStatus === "blocked") {
       riderIdFilter.approvalStatus = { $in: ["reject", "blocked"] };
     } else {
       riderIdFilter.approvalStatus = approvalStatus;
@@ -154,7 +154,7 @@ export async function getAllRiders(
 
   // Total count for pagination metadata
   const totalRiders = await Riders.countDocuments(riderIdFilter);
-
+  
   // Fetch bank details for these riders (bankDetail.userId === riders.riderId)
   const riderUserIds = riders
     .map((v: any) => (v.riderId && typeof v.riderId === "object" ? v.riderId._id : v.riderId))
