@@ -3,7 +3,6 @@ import { asyncHandler } from "../../utils/asyncHandler";
 import { AuthRequest } from "../auth/auth.middleware";
 import * as VendorService from "./vendor.service";
 import { createVendorSchema, updateVendorSchema } from "./vendor.validation";
-import { env } from "../../config/env";
 
 export const createVendor = asyncHandler(async (req: AuthRequest, res: Response) => {
     const files = (req as Request & { files?: Record<string, Express.Multer.File[]> }).files;
@@ -58,7 +57,7 @@ export const updateVendor = asyncHandler(async (req: AuthRequest, res: Response)
             `/uploads/vendors/${img.filename}`
         );
     } else {
-        req.body.kitchenImages = []; // For consistency if none uploaded
+        req.body.kitchenImages = [];
     }
     
     const { id } = req.body;
