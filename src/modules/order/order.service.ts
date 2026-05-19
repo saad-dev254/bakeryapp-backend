@@ -204,7 +204,7 @@ export async function getOrderAnalytics(dto: { role: "ADMIN" | "USER" | "RIDER" 
     ...(Object.keys(matchQuery).length ? [{ $match: matchQuery }] : []),
     {
       $group: {
-        _id: { $dateToString: { format: "%Y-%m", date: "$created_at" } },
+        _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
         count: { $sum: 1 },
         orders: { $push: "$$ROOT" },
       },
@@ -244,22 +244,22 @@ export async function getOrderAnalytics(dto: { role: "ADMIN" | "USER" | "RIDER" 
 
   const todayCount = await Order.countDocuments({
     ...deliveredMatch,
-    created_at: { $gte: todayStart }
+    createdAt: { $gte: todayStart }
   });
 
   const thisWeekCount = await Order.countDocuments({
     ...deliveredMatch,
-    created_at: { $gte: weekStart }
+    createdAt: { $gte: weekStart }
   });
 
   const thisMonthCount = await Order.countDocuments({
     ...deliveredMatch,
-    created_at: { $gte: monthStart }
+    createdAt: { $gte: monthStart }
   });
 
   const thisYearCount = await Order.countDocuments({
     ...deliveredMatch,
-    created_at: { $gte: yearStart }
+    createdAt: { $gte: yearStart }
   });
 
   return {

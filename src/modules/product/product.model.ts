@@ -9,8 +9,8 @@ export interface IProduct extends Document {
     discountAmount?: string;
     discountType?: string;
     categoryId?: mongoose.Types.ObjectId;
-    created_at: Date;
-    updated_at: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const productsSchema: Schema = new mongoose.Schema({
@@ -22,8 +22,8 @@ const productsSchema: Schema = new mongoose.Schema({
     discountAmount: { type: String },
     discountType: { type: String },
     categoryId: { type: Schema.Types.ObjectId, required: true, ref: "Category" },
-    created_at: { type: Date, default: Date },
-    updated_at: { type: Date, default: Date },
+    createdAt: { type: Date, default: Date },
+    updatedAt: { type: Date, default: Date },
 });
 
 const Products: Model<IProduct> = mongoose.model<IProduct>("Products", productsSchema);

@@ -22,8 +22,8 @@ export interface IRider extends Document {
     isOnline?: string;
     approvalStatus?: string;
     rejectReason?: string;
-    created_at: Date;
-    updated_at: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const ridersSchema: Schema = new mongoose.Schema({
@@ -48,8 +48,8 @@ const ridersSchema: Schema = new mongoose.Schema({
     isOnline: { type: String, default: "online" },
     approvalStatus: { type: String, required: true },
     rejectReason: { type: String },
-    created_at: { type: Date, default: Date.now },
-    updated_at: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
 });
 
 const Riders: Model<IRider> = mongoose.model<IRider>("Riders", ridersSchema);

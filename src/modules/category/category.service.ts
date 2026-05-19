@@ -12,12 +12,14 @@ export async function createCategory(dto: { categoryName?: string }) {
 export async function getAllCategory() {
     const category = await Category.find();
     if (!category || category.length === 0) throw new HttpError(404, "No category found.");
+
     return category.map(sanitizeCategory);
 }
 
 export async function getSingleCategory(id: string) {
     const category = await Category.findById(id);
     if (!category) throw new HttpError(404, "Category not found");
+
     return sanitizeCategory(category);
 }
 
@@ -33,6 +35,7 @@ export async function updateCategory(id: string, dto: { categoryName?: string })
 
 export async function deleteCategory(id: string) {
   await Category.findByIdAndDelete(id);
+
   return true;
 }
 

@@ -59,7 +59,7 @@ export const updateVendor = asyncHandler(async (req: AuthRequest, res: Response)
     } else {
         req.body.kitchenImages = [];
     }
-    
+
     const { id } = req.body;
     const dto = updateVendorSchema.parse(req.body);
     const vendor = await VendorService.updateVendor(id, dto);

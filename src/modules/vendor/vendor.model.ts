@@ -26,8 +26,8 @@ export interface IVendor extends Document {
     isOnline: string;
     approvalStatus: string;
     rejectReason: string;
-    created_at: Date;
-    updated_at: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const vendorsSchema: Schema = new mongoose.Schema({
@@ -56,8 +56,8 @@ const vendorsSchema: Schema = new mongoose.Schema({
     isOnline: { type: String, required: true },
     approvalStatus: { type: String, required: true, default: "pending" },
     rejectReason: { type: String, default: "" },
-    created_at: { type: Date, default: Date.now },
-    updated_at: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
 });
 
 const Vendors: Model<IVendor> = mongoose.model<IVendor>("Vendors", vendorsSchema);

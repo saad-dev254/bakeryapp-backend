@@ -13,15 +13,16 @@ export interface IUser {
   isApproved: boolean;
   passwordHash: string;
   passwordChangedAt?: Date;
-
+  fcmToken?: string;
+  deviceType?: string;
   refreshTokenHash?: string;
 
   resetPasswordTokenHash?: string;
   resetPasswordExpiresAt?: Date;
 
   createdBy?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -36,6 +37,8 @@ const UserSchema = new Schema<IUser>(
     isApproved: { type: Boolean, default: false },
     passwordHash: { type: String, required: true },
     passwordChangedAt: { type: Date },
+    fcmToken: { type: String },
+    deviceType: { type: String },
 
     refreshTokenHash: { type: String },
 
@@ -44,6 +47,8 @@ const UserSchema = new Schema<IUser>(
 
     // createdBy: { type: Schema.Types.ObjectId, ref: "User" }
     createdBy: { type: String, required: false, trim: true },
+    createdAt: { type: Date, default: Date },
+    updatedAt: { type: Date, default: Date },
   },
   { timestamps: true }
 );

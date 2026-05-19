@@ -8,8 +8,8 @@ export interface IBankDetail extends Document {
     branchName: string;
     isPrimary: boolean;
     userId: mongoose.Types.ObjectId;
-    created_at: Date;
-    updated_at: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const bankDetailSchema: Schema = new mongoose.Schema({
@@ -20,8 +20,8 @@ const bankDetailSchema: Schema = new mongoose.Schema({
     branchName: { type: String, required: true },
     isPrimary: { type: Boolean, required: true },
     userId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
-    created_at: { type: Date, default: Date },
-    updated_at: { type: Date, default: Date },
+    createdAt: { type: Date, default: Date },
+    updatedAt: { type: Date, default: Date },
 });
 
 const BankDetail: Model<IBankDetail> = mongoose.model<IBankDetail>("BankDetail", bankDetailSchema);

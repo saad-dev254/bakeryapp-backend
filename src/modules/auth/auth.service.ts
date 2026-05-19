@@ -98,9 +98,10 @@ export async function login(dto: {
   email?: string;
   phoneNumber?: string;
   password: string;
+  fcmToken?: string;
+  deviceType?: string;
   role: "ADMIN" | "USER" | "VENDOR" | "RIDER";
 }) {
-  // const user = await User.findOne({ phoneNumber: dto.phoneNumber.trim(), role: dto.role });
   let user;
   if (dto.email && dto.role === "ADMIN") {
     user = await User.findOne({ email: dto.email?.toLowerCase(), role: dto.role });
@@ -117,6 +118,20 @@ export async function login(dto: {
   } else {
     if (!ok) throw new HttpError(401, "Invalid phone number, role, or password");
   }
+
+  // Check and update fcmToken per instructions
+  if (dto.fcmToken) {
+    // If there is no fcmToken in the db, add it
+    if (!user.fcmToken) {
+      user.fcmToken = dto.fcmToken;
+    }
+    // If fcmToken exists but does not match the one provided, update it
+    else if (user.fcmToken !== dto.fcmToken) {
+      user.fcmToken = dto.fcmToken;
+    }
+    // else, already matches, do not update
+  }
+  user.deviceType = dto.deviceType;
 
   const payload = { sub: String(user._id), role: user.role, email: user.email };
   const accessToken = signAccessToken(payload);
@@ -241,6 +256,8 @@ function sanitizeUser(user: any) {
     userImage: user.userImage,
     phoneNumber: user.phoneNumber,
     role: user.role,
+    fcmToken: user.fcmToken,
+    deviceType: user.deviceType,
     isActive: user.isActive,
     isProfileComplete: user.isProfileComplete,
     isApproved: user.isApproved,

@@ -60,8 +60,8 @@ export interface IOrder extends Document {
     riderPhoneNumber?: string;
     riderImage?: string;
 
-    created_at: Date;
-    updated_at: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const orderSchema: Schema = new mongoose.Schema({
@@ -128,8 +128,8 @@ const orderSchema: Schema = new mongoose.Schema({
     riderPhoneNumber: { type: String, required: true },
     riderImage: { type: String, required: true },
 
-    created_at: { type: Date, default: Date },
-    updated_at: { type: Date, default: Date },
+    createdAt: { type: Date, default: Date },
+    updatedAt: { type: Date, default: Date },
 });
 
 const Order: Model<IOrder> = mongoose.model<IOrder>("Order", orderSchema);
