@@ -32,7 +32,7 @@ vendorRouter.put("/update-vendor", requireAuth,
     ]),
     updateVendor
 );
-vendorRouter.post("/all-vendors", requireAuth, getAllVendors);
+vendorRouter.get("/all-vendors", getAllVendors);
 vendorRouter.post("/get-vendor-detail", requireAuth, getSingleVendor);
 vendorRouter.delete("/delete-vendor", authenticateToken, deleteVendor);
   
