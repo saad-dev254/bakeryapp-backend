@@ -18,11 +18,10 @@ export const createVendor = asyncHandler(async (req: AuthRequest, res: Response)
 
     // 1. Add URLs from uploaded files (multer) if present
     if (files?.kitchenImages && Array.isArray(files.kitchenImages) && files.kitchenImages.length > 0) {
-        kitchenImagesArr = files.kitchenImages.map(file => `/uploads/vendors/${file.filename}`);
+        kitchenImagesArr = files.kitchenImages.map((file: Express.Multer.File) => `/uploads/vendors/${file.filename}`);
     }
 
     // 2. Handle `kitchenImages` from req.body if present (may be array/object/JSON string/CSV string)
-    // This handles if body comes from e.g. postman or client
     if (req.body.kitchenImages) {
         let kitchenImagesFromBody: string[] = [];
 
@@ -47,15 +46,18 @@ export const createVendor = asyncHandler(async (req: AuthRequest, res: Response)
                 }
             } catch {
                 // fallback to comma-separated string
-                kitchenImagesFromBody = req.body.kitchenImages.split(",").map(s => s.trim()).filter(Boolean);
+                kitchenImagesFromBody = (req.body.kitchenImages as string)
+                    .split(",")
+                    .map((s: string) => s.trim())
+                    .filter((str: string) => Boolean(str));
             }
         }
 
-        kitchenImagesArr = [...kitchenImagesArr, ...kitchenImagesFromBody].filter(Boolean);
+        kitchenImagesArr = [...kitchenImagesArr, ...kitchenImagesFromBody].filter((img: string) => Boolean(img));
     }
 
     // Make sure ONLY string URLs are present (remove any accidental objects)
-    kitchenImagesArr = kitchenImagesArr.filter(img => typeof img === "string" && img.length > 0);
+    kitchenImagesArr = kitchenImagesArr.filter((img: string) => typeof img === "string" && img.length > 0);
 
     req.body.kitchenImages = kitchenImagesArr;
 
@@ -63,7 +65,7 @@ export const createVendor = asyncHandler(async (req: AuthRequest, res: Response)
     if (bakeryImage) req.body.bakeryImage = `/uploads/vendors/${bakeryImage.filename}`;
     if (vendorCnicFrontImage) req.body.vendorCnicFrontImage = `/uploads/vendors/${vendorCnicFrontImage.filename}`;
     if (vendorCnicBackImage) req.body.vendorCnicBackImage = `/uploads/vendors/${vendorCnicBackImage.filename}`;
-    if (ntnImage) req.body.ntnImage = `/uploads/vendors/${ntnImage?.filename}`;
+    if (ntnImage) req.body.ntnImage = `/uploads/vendors/${ntnImage.filename}`;
     if (foodLicenseImage) req.body.foodLicenseImage = `/uploads/vendors/${foodLicenseImage.filename}`;
 
     console.log("req.body ====> ", req.body);
