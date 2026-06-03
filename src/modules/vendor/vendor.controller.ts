@@ -13,36 +13,55 @@ export const createVendor = asyncHandler(async (req: AuthRequest, res: Response)
     const ntnImage = files?.ntnImage?.[0];
     const foodLicenseImage = files?.foodLicenseImage?.[0];
 
-    // Support kitchenImages passed from form-data or already existing in body (as JSON strings or URLs)
+    // Always produce an array of string URLs for kitchenImages
     let kitchenImagesArr: string[] = [];
 
-    // If kitchenImages sent as files via multer (as expected for uploads)
-    if (files?.kitchenImages && Array.isArray(files.kitchenImages) && files.kitchenImages.length > 0) {
-        kitchenImagesArr = files.kitchenImages.map(img => `/uploads/vendors/${img.filename}`);
+    // Handle files from multer
+    if (Array.isArray(files?.kitchenImages) && files.kitchenImages.length > 0) {
+        kitchenImagesArr = files.kitchenImages.map(img => {
+            if (typeof img === "object" && img.filename) {
+                return `/uploads/vendors/${img.filename}`;
+            }
+            return "";
+        }).filter(Boolean); // Remove any empty strings
     }
-    // If user sends kitchenImages as array of URLs (edit or from Postman etc), add those also
+
+    // Also support kitchenImages in body (might be sent as JSON string or array of urls)
     if (req.body.kitchenImages) {
-        // Could be a stringified array, a comma separated string, or plain string/array
-        let imagesFromBody = [];
+        let imagesFromBody: string[] = [];
         if (Array.isArray(req.body.kitchenImages)) {
-            imagesFromBody = req.body.kitchenImages;
+            // If array, map and stringify any object elements
+            imagesFromBody = req.body.kitchenImages.map((img: any) =>
+                typeof img === "string"
+                    ? img
+                    : (img && typeof img === "object" && img.url)
+                    ? img.url
+                    : ""
+            ).filter(Boolean);
         } else if (typeof req.body.kitchenImages === "string") {
+            // Try to parse JSON array, fallback to comma-split string
             try {
-                // Try parsing as JSON array
-                imagesFromBody = JSON.parse(req.body.kitchenImages);
-                if (!Array.isArray(imagesFromBody)) imagesFromBody = [req.body.kitchenImages];
+                const parsed = JSON.parse(req.body.kitchenImages);
+                if (Array.isArray(parsed)) {
+                    imagesFromBody = parsed.map((img: any) => 
+                        typeof img === "string"
+                            ? img
+                            : (img && typeof img === "object" && img.url)
+                            ? img.url
+                            : ""
+                    ).filter(Boolean);
+                } else if (typeof parsed === "string") {
+                    imagesFromBody = [parsed];
+                }
             } catch {
-                // Fall back to comma-separated
-                imagesFromBody = req.body.kitchenImages.split(",");
+                imagesFromBody = req.body.kitchenImages.split(",").map((img: string) => img.trim()).filter(Boolean);
             }
         }
-        // Filter out empty or duplicate entries
-        imagesFromBody = imagesFromBody.map((img: string) => img.trim()).filter(Boolean);
-        // Merge with multer-uploaded files
+        // Merge and de-duplicate
         kitchenImagesArr = [...kitchenImagesArr, ...imagesFromBody].filter((v, i, a) => a.indexOf(v) === i);
     }
 
-    // Finally, assign the merged (non-empty) array to body, or empty array if none
+    // Ensure kitchenImages is always a proper string array
     req.body.kitchenImages = kitchenImagesArr.length > 0 ? kitchenImagesArr : [];
 
     if (bakeryLogo) req.body.bakeryLogo = `/uploads/vendors/${bakeryLogo.filename}`;
