@@ -35,5 +35,5 @@ vendorRouter.put("/update-vendor", requireAuth,
 vendorRouter.post("/all-vendors", requireAuth, getAllVendors);
 vendorRouter.post("/get-vendor-detail", requireAuth, getSingleVendor);
 vendorRouter.delete("/delete-vendor", authenticateToken, deleteVendor);
-vendorRouter.get("/vendors", getAllVendors);
+vendorRouter.get("/vendor", getAllVendors);
   
