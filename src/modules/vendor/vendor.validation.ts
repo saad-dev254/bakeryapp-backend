@@ -15,7 +15,6 @@ export const createVendorSchema = z.object({
     preOrder: z.string().min(2),
     deliveryTime: z.string().min(2),
     isOnline: z.string().min(2),
-
     vendorCnicFrontImage: z.string().min(2),
     vendorCnicBackImage: z.string().min(2),
     bakeryLogo: z.string().min(2),

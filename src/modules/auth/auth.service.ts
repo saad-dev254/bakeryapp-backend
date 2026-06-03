@@ -24,9 +24,9 @@ export async function createUser(
     isApproved?: boolean;
   }
 ) {
-  const exists = await User.findOne({ 
+  const exists = await User.findOne({
     $or: [
-      { email: dto.email.toLowerCase() }, 
+      { email: dto.email.toLowerCase() },
       { phoneNumber: dto.phoneNumber }
     ],
     role: dto.role
@@ -44,7 +44,7 @@ export async function createUser(
     isProfileComplete: dto.role === "VENDOR" || dto.role === "RIDER" ? false : true,
     isApproved: dto.role === "VENDOR" || dto.role === "RIDER" ? false : true,
     passwordHash,
-    createdBy: "self"
+    createdBy: "self",
   });
 
   return sanitizeUser(user);
