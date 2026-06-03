@@ -29,7 +29,7 @@ export const createVendor = asyncHandler(async (req: AuthRequest, res: Response)
             // e.g. kitchenImages: ['img1','img2'] or [{url: 'img1'}, {url: 'img2'}]
             kitchenImagesFromBody = req.body.kitchenImages.map((img: any) => {
                 if (typeof img === "string") return img;
-                if (img && typeof img === "object" && "url" in img && typeof img.url === "string") return img.url;
+                if (img && typeof img === "object" && "uri" in img && typeof img.uri === "string") return img.uri;
                 return "";
             }).filter(Boolean);
 
@@ -40,7 +40,7 @@ export const createVendor = asyncHandler(async (req: AuthRequest, res: Response)
                 if (Array.isArray(parsed)) {
                     kitchenImagesFromBody = parsed.map((img: any) => {
                         if (typeof img === "string") return img;
-                        if (img && typeof img === "object" && "url" in img && typeof img.url === "string") return img.url;
+                        if (img && typeof img === "object" && "uri" in img && typeof img.uri === "string") return img.uri;
                         return "";
                     }).filter(Boolean);
                 }
