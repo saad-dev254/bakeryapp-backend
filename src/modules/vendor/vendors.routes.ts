@@ -1,6 +1,6 @@
 import { Router } from "express";
 import authenticateToken from "../../middlewares/auth";
-import { createVendor, deleteVendor, getAllVendors, getSingleVendor, updateVendor } from "./vendor.controller";
+import { createVendor, deleteVendor, getAllVendors, getSingleVendor, getVendorByVendorID, updateVendor } from "./vendor.controller";
 import { requireAuth } from "../auth/auth.middleware";
 import { vendorImageUpload } from "../../utils/upload";
 
@@ -34,6 +34,7 @@ vendorRouter.put("/update-vendor", requireAuth,
 );
 vendorRouter.post("/all-vendors", requireAuth, getAllVendors);
 vendorRouter.post("/get-vendor-detail", requireAuth, getSingleVendor);
+vendorRouter.post("/get-vendor-by-vendor-id", requireAuth, getVendorByVendorID);
 vendorRouter.delete("/delete-vendor", authenticateToken, deleteVendor);
 vendorRouter.get("/vendors", getAllVendors);
   

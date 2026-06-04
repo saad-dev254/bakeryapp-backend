@@ -71,6 +71,12 @@ export const getAllVendors = asyncHandler(async (req: AuthRequest, res: Response
     res.json({ success: true, data: vendors });
 });
 
+export const getVendorByVendorID = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { user_id } = req.body;
+    const vendor = await VendorService.getVendorByVendorID(user_id);
+    res.json({ success: true, data: vendor });
+});
+
 export const getSingleVendor = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.body;
     const vendor = await VendorService.getSingleVendor(id);

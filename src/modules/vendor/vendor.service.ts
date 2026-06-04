@@ -227,6 +227,15 @@ export async function getSingleVendor(id: string) {
   return sanitizeVendor(vendor, bankDetails || []);
 }
 
+export async function getVendorByVendorID(user_id: string) {
+  const vendor = await Vendors.findOne({ vendorId: user_id }).populate("vendorId", "name email phoneNumber isApproved isActive isProfileComplete");
+  if (!vendor) throw new HttpError(404, "Vendor not found");
+  const vendorUserId =
+    vendor.vendorId && typeof vendor.vendorId === "object" ? (vendor.vendorId as any)._id : vendor.vendorId;
+  const bankDetails = vendorUserId ? await BankDetail.find({ userId: vendorUserId }).lean() : [];
+  return sanitizeVendor(vendor, bankDetails || []);
+}
+
 export async function deleteVendor(vendorId: string) {
   await Vendors.findByIdAndDelete(vendorId);
   return true;
