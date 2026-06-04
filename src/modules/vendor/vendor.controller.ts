@@ -12,54 +12,7 @@ export const createVendor = asyncHandler(async (req: AuthRequest, res: Response)
     const vendorCnicBackImage = files?.vendorCnicBackImage?.[0];
     const ntnImage = files?.ntnImage?.[0];
     const foodLicenseImage = files?.foodLicenseImage?.[0];
-
-    // Handle kitchenImages so it always ends up as array of string URLs, never objects
-    let kitchenImagesArr: string[] = [];
-
-    // 1. Add URLs from uploaded files (multer) if present
-    if (files?.kitchenImages && Array.isArray(files.kitchenImages) && files.kitchenImages.length > 0) {
-        kitchenImagesArr = files.kitchenImages.map((file: Express.Multer.File) => `/uploads/vendors/${file.filename}`);
-    }
-
-    // 2. Handle `kitchenImages` from req.body if present (may be array/object/JSON string/CSV string)
-    if (req.body.kitchenImages) {
-        let kitchenImagesFromBody: string[] = [];
-
-        if (Array.isArray(req.body.kitchenImages)) {
-            // e.g. kitchenImages: ['img1','img2'] or [{url: 'img1'}, {url: 'img2'}]
-            kitchenImagesFromBody = req.body.kitchenImages.map((img: any) => {
-                if (typeof img === "string") return img;
-                if (img && typeof img === "object" && "uri" in img && typeof img.uri === "string") return img.uri;
-                return "";
-            }).filter(Boolean);
-
-        } else if (typeof req.body.kitchenImages === "string") {
-            // Try parsing as JSON, otherwise see if it's CSV (comma-separated)
-            try {
-                const parsed = JSON.parse(req.body.kitchenImages);
-                if (Array.isArray(parsed)) {
-                    kitchenImagesFromBody = parsed.map((img: any) => {
-                        if (typeof img === "string") return img;
-                        if (img && typeof img === "object" && "uri" in img && typeof img.uri === "string") return img.uri;
-                        return "";
-                    }).filter(Boolean);
-                }
-            } catch {
-                // fallback to comma-separated string
-                kitchenImagesFromBody = (req.body.kitchenImages as string)
-                    .split(",")
-                    .map((s: string) => s.trim())
-                    .filter((str: string) => Boolean(str));
-            }
-        }
-
-        kitchenImagesArr = [...kitchenImagesArr, ...kitchenImagesFromBody].filter((img: string) => Boolean(img));
-    }
-
-    // Make sure ONLY string URLs are present (remove any accidental objects)
-    kitchenImagesArr = kitchenImagesArr.filter((img: string) => typeof img === "string" && img.length > 0);
-
-    req.body.kitchenImages = kitchenImagesArr;
+    const kitchenImageFiles = files?.kitchenImages || [];
 
     if (bakeryLogo) req.body.bakeryLogo = `/uploads/vendors/${bakeryLogo.filename}`;
     if (bakeryImage) req.body.bakeryImage = `/uploads/vendors/${bakeryImage.filename}`;
@@ -67,8 +20,14 @@ export const createVendor = asyncHandler(async (req: AuthRequest, res: Response)
     if (vendorCnicBackImage) req.body.vendorCnicBackImage = `/uploads/vendors/${vendorCnicBackImage.filename}`;
     if (ntnImage) req.body.ntnImage = `/uploads/vendors/${ntnImage.filename}`;
     if (foodLicenseImage) req.body.foodLicenseImage = `/uploads/vendors/${foodLicenseImage.filename}`;
-
-    console.log("req.body ====> ", req.body);
+    // Handle kitchenImages (multiple images: 0, 1, or many)
+    if (kitchenImageFiles.length > 0) {
+        req.body.kitchenImages = kitchenImageFiles.map(img =>
+            `/uploads/vendors/${img.filename}`
+        );
+    } else {
+        req.body.kitchenImages = []; // For consistency if none uploaded
+    }
 
     const { vendorId } = req.body;
     const dto = createVendorSchema.parse(req.body);

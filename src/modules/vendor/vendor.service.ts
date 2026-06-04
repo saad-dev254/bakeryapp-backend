@@ -3,33 +3,35 @@ import { User } from "../auth/user.model";
 import Vendors from "./vendor.model";
 import BankDetail from "../bankDetail/bankDetail.model";
 
-export async function createVendor(vendorId: string,
-dto: { 
-  vendorDesignation?: string;
-  vendorCnicNumber?: string;
-  vendorCnicFrontImage?: string;
-  vendorCnicBackImage?: string;
-  bakeryLogo?: string;
-  bakeryImage?: string;
-  bakeryName?: string;
-  bakeryAddress?: string;
-  bakeryLatitude?: string;
-  bakeryLongitude?: string;
-  city?: string;
-  area?: string;
-  ntnNumber?: string;
-  ntnImage?: string;
-  foodLicenseImage?: string;
-  openingTime?: string;
-  closingTime?: string;
-  bakeryType?: string;
-  preOrder?: string;
-  deliveryTime?: string;
-  isOnline?: string;
-  kitchenImages?: string[];
-  approvalStatus?: string;
-  rejectReason?: string;
-}) {
+export async function createVendor(
+  vendorId: string,
+  dto: { 
+    vendorDesignation?: string;
+    vendorCnicNumber?: string;
+    vendorCnicFrontImage?: string;
+    vendorCnicBackImage?: string;
+    bakeryLogo?: string;
+    bakeryImage?: string;
+    bakeryName?: string;
+    bakeryAddress?: string;
+    bakeryLatitude?: string;
+    bakeryLongitude?: string;
+    city?: string;
+    area?: string;
+    ntnNumber?: string;
+    ntnImage?: string;
+    foodLicenseImage?: string;
+    openingTime?: string;
+    closingTime?: string;
+    bakeryType?: string;
+    preOrder?: string;
+    deliveryTime?: string;
+    isOnline?: string;
+    kitchenImages?: string[];
+    approvalStatus?: string;
+    rejectReason?: string;
+  }
+) {
   const exists = await Vendors.findOne({ 
     $or: [
         { vendorId: vendorId }
@@ -62,6 +64,12 @@ dto: {
     isOnline: dto.isOnline,
     kitchenImages: dto.kitchenImages,
   });
+
+  // Update the corresponding user's isProfileComplete to true using vendorId
+  await User.updateOne(
+    { _id: vendorId },
+    { $set: { isProfileComplete: true } }
+  );
 
   return sanitizeVendor(vendor);
 }
