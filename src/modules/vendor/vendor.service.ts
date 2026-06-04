@@ -244,6 +244,11 @@ function sanitizeVendor(user: any, bankDetails?: any[] | null) {
     vendorEmail: vendorUser?.email,
     vendorMobileNo: vendorUser?.phoneNumber,
     vendorIsApproved: vendorUser?.isApproved,
+
+    isActive: vendorUser?.isActive,
+    isApproved: vendorUser?.isApproved,
+    isProfileComplete: vendorUser?.isProfileComplete,
+
     vendorDesignation: user.vendorDesignation,
     vendorCnicNumber: user.vendorCnicNumber,
     vendorCnicFrontImage: user.vendorCnicFrontImage,
