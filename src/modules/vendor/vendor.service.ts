@@ -166,7 +166,7 @@ export async function getAllVendors(
   // Build the populate object
   const populate = {
     path: "vendorId",
-    select: "name email phoneNumber isApproved",
+    select: "name email phoneNumber isApproved isActive isProfileComplete",
   };
 
   // Find vendors by status if provided, otherwise fetch all. Sort by latest.
@@ -219,7 +219,7 @@ export async function getAllVendors(
 }
 
 export async function getSingleVendor(id: string) {
-  const vendor = await Vendors.findById(id).populate("vendorId", "name email phoneNumber isApproved");
+  const vendor = await Vendors.findById(id).populate("vendorId", "name email phoneNumber isApproved isActive isProfileComplete");
   if (!vendor) throw new HttpError(404, "Vendor not found");
   const vendorUserId =
     vendor.vendorId && typeof vendor.vendorId === "object" ? (vendor.vendorId as any)._id : vendor.vendorId;
@@ -243,7 +243,6 @@ function sanitizeVendor(user: any, bankDetails?: any[] | null) {
     vendorName: vendorUser?.name,
     vendorEmail: vendorUser?.email,
     vendorMobileNo: vendorUser?.phoneNumber,
-    vendorIsApproved: vendorUser?.isApproved,
 
     isActive: vendorUser?.isActive,
     isApproved: vendorUser?.isApproved,
