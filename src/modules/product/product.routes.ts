@@ -7,7 +7,13 @@ import { productImageUpload } from "../../utils/upload";
 export const productRouter = Router();
 
 // protected
-productRouter.post("/add-product", requireAuth, productImageUpload.single("productImage"), createProduct);
+// productRouter.post("/add-product", requireAuth, productImageUpload.single("productImage"), createProduct);
+productRouter.post("/add-product", requireAuth,
+    productImageUpload.fields([
+        { name: "productImage", maxCount: 1 },
+    ]),
+    createProduct
+);
 productRouter.put("/update-product", requireAuth, productImageUpload.single("productImage"), updateProduct);
 productRouter.get("/all-products", requireAuth, getAllProducts);
 productRouter.post("/get-product-detail", requireAuth, getSingleProduct);
