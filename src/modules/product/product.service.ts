@@ -57,10 +57,10 @@ dto: {
   productImage?: string;
   productDescription?: string;
   productPrice?: string;
+  status?: string;
   discountAmount?: string;
   discountType?: string;
   categoryId?: any;
-  status?: boolean;
 }) {
   const product = await Products.create({
     vendorId: vendorId,
@@ -89,10 +89,10 @@ dto: {
   productImage?: string;
   productDescription?: string;
   productPrice?: string;
+  status?: string;
   discountAmount?: string;
   discountType?: string;
   categoryId?: any;
-  status?: boolean;
 }) {
   const product = await Products.findById(id);
   if (!product) throw new HttpError(404, "Product not found");
