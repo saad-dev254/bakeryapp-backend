@@ -60,6 +60,7 @@ dto: {
   discountAmount?: string;
   discountType?: string;
   categoryId?: any;
+  status?: boolean;
 }) {
   const product = await Products.create({
     vendorId: vendorId,
@@ -70,6 +71,7 @@ dto: {
     discountAmount: dto.discountAmount,
     discountType: dto.discountType,
     categoryId: dto.categoryId,
+    status: dto.status,
   });
 
   // Get vendor detail for bakeryDetail object
@@ -90,6 +92,7 @@ dto: {
   discountAmount?: string;
   discountType?: string;
   categoryId?: any;
+  status?: boolean;
 }) {
   const product = await Products.findById(id);
   if (!product) throw new HttpError(404, "Product not found");
@@ -101,6 +104,7 @@ dto: {
   if (dto.discountAmount) product.discountAmount = dto.discountAmount;
   if (dto.discountType) product.discountType = dto.discountType;
   if (dto.categoryId) product.categoryId = dto.categoryId;
+  if (dto.status) product.status = dto.status;
 
   await product.save();
 
@@ -282,6 +286,7 @@ function sanitizeProduct(product: any, bakeryDetail?: any) {
     productPrice: product.productPrice,
     discountAmount: product.discountAmount,
     discountType: product.discountType,
+    status: product.status,
     categoryId:
       product.categoryId && typeof product.categoryId === "object"
         ? String(product.categoryId._id)

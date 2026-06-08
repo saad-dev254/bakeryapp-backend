@@ -5,10 +5,12 @@ import * as ProductService from "./product.service";
 import { createProductSchema, updateProductSchema } from "./product.validation";
 
 export const createProduct = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const uploadedFile = (req as Request & { file?: Express.Multer.File }).file;
-    if (uploadedFile) {
-        req.body.productImage = `/uploads/products/${uploadedFile.filename}`;
-    }
+    // const uploadedFile = (req as Request & { file?: Express.Multer.File }).file;
+    const files = (req as Request & { files?: Record<string, Express.Multer.File[]> }).files;
+    const productImage = files?.productImage?.[0];
+
+    if (productImage) req.body.productImage = `/uploads/vendors/${productImage.filename}`;
+
     const { vendorId } = req.body;
     const dto = createProductSchema.parse(req.body);
     const product = await ProductService.createProduct(vendorId, dto);
