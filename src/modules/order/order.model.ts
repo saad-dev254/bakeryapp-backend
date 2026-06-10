@@ -88,8 +88,8 @@ const orderSchema: Schema = new mongoose.Schema({
     totalAmount: { type: String, required: true },
 
     // product keys
-    bookingDate: { type: Date, required: true },
-    bookingTime: { type: Date, required: true },
+    bookingDate: { type: Date },
+    bookingTime: { type: Date },
     productName: { type: String, required: true },
     productImage: { type: String, required: true },
     productDescription: { type: String, required: true },

@@ -26,6 +26,8 @@ export const createOrderSchema = z.object({
     deliveryCharges: z.string().min(2),
     discountAmount: z.string().optional(),
     totalAmount: z.string().min(2),
+    bookingDate: z.string().optional(),
+    bookingTime: z.string().optional(),
 
     // product keys
     productName: z.string().min(2),
@@ -61,7 +63,7 @@ export const createOrderSchema = z.object({
 export const updateOrderSchema = z.object({
     // order keys
     orderStatus: z.string().optional(),
-    orderInstructions: z.string().optional()
+    orderInstructions: z.string().optional(),
 });
 
 export const orderAnalyticsSchema = z.object({
