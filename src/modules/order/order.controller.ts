@@ -6,6 +6,7 @@ import { createOrderSchema, orderAnalyticsSchema, updateOrderSchema } from "./or
 
 export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) => {
     const dto = createOrderSchema.parse(req.body);
+    console.log("dto =====> ", dto);
     const category = await OrderService.createOrder(dto);
     res.status(201).json({ success: true, message: `Order created`, data: category });
 });
@@ -18,7 +19,8 @@ export const updateOrder = asyncHandler(async (req: AuthRequest, res: Response) 
 });
 
 export const getAllOrders = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const order = await OrderService.getAllOrders(req.body?.vendorId);
+    const { vendorId, riderId, userId } = req.body;
+    const order = await OrderService.getAllOrders(vendorId, riderId, userId);
     res.json({ success: true, data: order });
 });
 

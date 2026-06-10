@@ -7,7 +7,7 @@ export const orderRouter = Router();
 // protected
 orderRouter.post("/create-order", requireAuth, createOrder);
 orderRouter.put("/update-order", requireAuth, updateOrder);
-orderRouter.get("/all-orders", requireAuth, getAllOrders);
+orderRouter.post("/all-orders", requireAuth, getAllOrders);
 orderRouter.post("/get-single-category", requireAuth, getSingleOrder);
 orderRouter.delete("/delete-category", requireAuth, deleteOrder);
 orderRouter.post("/order-analytics", requireAuth, orderStatusCounts);

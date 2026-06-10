@@ -118,10 +118,14 @@ dto: {
   return sanitizeOrder(order);
 }
 
-export async function getAllOrders(vendorId: string) {
+export async function getAllOrders(vendorId: string, riderId: string, userId: string) {
     let order;
     if (vendorId) {
       order = await Order.find({ vendorId })
+    } else if (riderId) {
+      order = await Order.find({ riderId })
+    } else if (userId) {
+      order = await Order.find({ userId })
     } else {
       order = await Order.find()
     }
@@ -301,6 +305,8 @@ function sanitizeOrder(order: any) {
     deliveryCharges: order.deliveryCharges,
     discountAmount: order.discountAmount,
     totalAmount: order.totalAmount,
+    bookingDate: order.bookingDate,
+    bookingTime: order.bookingTime,
 
     // product keys
     productName: order.productName,
