@@ -7,60 +7,74 @@ type AdOnItem = {
   price: string;
 };
 
+type ProductItem = {
+  productId?: string;
+  productName?: string;
+  productImage?: string;
+  productDescription?: string;
+  originalAmount?: string;
+  discountedAmount?: string;
+  subTotal?: string;
+  finalAmount?: string;
+  discountAmount?: string;
+  discountType?: string;
+  quantity?: string;
+  adOnList: AdOnItem[];
+};
+
 export async function createOrder(
-dto: { 
-  // user keys
-  userId: string,
-  userName: string,
-  userEmail: string,
-  userPhoneNumber: string,
-  userImage: string,
-  userAddress: string,
-  userLatitude: number,
-  userLongitude: number,
+  dto: { 
+    // user keys
+    userId: string,
+    userName: string,
+    userEmail: string,
+    userPhoneNumber: string,
+    userImage: string,
+    userAddress: string,
+    userLatitude: number,
+    userLongitude: number,
 
-  // order keys
-  orderStatus: string,
-  deliveryAddress: string,
-  deliveryLatitude: number,
-  deliveryLongitude: number,
-  orderInstructions: string,
-  subTotalAmount: string,
-  deliveryCharges: string,
-  discountAmount?: string,
-  totalAmount: string,
+    // order keys
+    orderStatus: string,
+    deliveryAddress: string,
+    deliveryLatitude: number,
+    deliveryLongitude: number,
+    orderInstructions: string,
+    subTotalAmount: string,
+    deliveryCharges: string,
+    discountAmount?: string,
+    totalAmount: string,
+    bookingDate: string,
+    bookingTime: string,
 
-  // product keys
-  productName: string,
-  productImage: string,
-  productDescription: string,
-  productPrice: string,
-  adOnList: AdOnItem[],
+    // product keys (as array now)
+    products: ProductItem[],
 
-  // bakery/vendor keys
-  vendorId: string,
-  vendorName: string,
-  vendorEmail: string,
-  vendorPhoneNumber: string,
-  bakeryImage: string,
-  bakeryName: string,
-  bakeryAddress: string,
-  bakeryLatitude: number,
-  bakeryLongitude: number,
-  openingTime: string,
-  closingTime: string,
-  bakeryType: string,
-  preOrder: string,
-  deliveryTime: string,
+    // bakery/vendor keys
+    vendorId: string,
+    vendorName: string,
+    vendorEmail: string,
+    vendorPhoneNumber: string,
+    bakeryImage: string,
+    bakeryName: string,
+    bakeryAddress: string,
+    bakeryLatitude: number,
+    bakeryLongitude: number,
+    openingTime: string,
+    closingTime: string,
+    bakeryType: string,
+    preOrder: string,
+    deliveryTime: string,
 
-  // rider keys
-  riderId: string,
-  riderName: string,
-  riderEmail: string,
-  riderPhoneNumber: string,
-  riderImage: string,
-}) {
-  // Generate random order number orders
+    // rider keys
+    riderId: string,
+    riderName: string,
+    riderEmail: string,
+    riderPhoneNumber: string,
+    riderImage: string,
+  }
+) {
+  // Generate random order number
   const order_number = 'ORD-' + Math.floor(100000 + Math.random() * 900000).toString();
   const order = await Order.create({
     userId: dto.userId,
@@ -83,13 +97,11 @@ dto: {
     deliveryCharges: dto.deliveryCharges,
     discountAmount: dto.discountAmount,
     totalAmount: dto.totalAmount,
+    bookingDate: dto.bookingDate,
+    bookingTime: dto.bookingTime,
 
-    // product keys
-    productName: dto.productName,
-    productImage: dto.productImage,
-    productDescription: dto.productDescription,
-    productPrice: dto.productPrice,
-    adOnList: dto.adOnList,
+    // product keys as array
+    products: dto.products,
 
     // bakery/vendor keys
     vendorId: dto.vendorId,
@@ -308,12 +320,8 @@ function sanitizeOrder(order: any) {
     bookingDate: order.bookingDate,
     bookingTime: order.bookingTime,
 
-    // product keys
-    productName: order.productName,
-    productImage: order.productImage,
-    productDescription: order.productDescription,
-    productPrice: order.productPrice,
-    adOnList: order.adOnList,
+    // product keys (array now)
+    products: order.products,
 
     // bakery/vendor keys
     vendorId: String(order.vendorId),

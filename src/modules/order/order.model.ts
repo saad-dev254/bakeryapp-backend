@@ -1,8 +1,23 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Document, Model, mongo } from "mongoose";
 
 interface IAdOnItem {
     name: string;
     price: string;
+}
+
+export interface IOrderProduct {
+    productId: mongoose.Types.ObjectId;
+    productName?: string;
+    productImage?: string;
+    productDescription?: string;
+    originalAmount?: string;
+    discountedAmount?: string;
+    subTotal?: string;
+    finalAmount?: string;
+    discountAmount?: string;
+    discountType?: string;
+    quantity?: string;
+    adOnList?: IAdOnItem[];
 }
 
 export interface IOrder extends Document {
@@ -15,27 +30,6 @@ export interface IOrder extends Document {
     userAddress?: string;
     userLatitude?: number;
     userLongitude?: number;
-
-    // order keys
-    orderStatus?: string;
-    orderNumber?: string;
-    deliveryAddress?: string;
-    deliveryLatitude?: number;
-    deliveryLongitude?: number;
-    orderInstructions?: string;
-    subTotalAmount?: string;
-    deliveryCharges?: string;
-    discountAmount?: string;
-    totalAmount?: string;
-    bookingDate?: Date;
-    bookingTime?: Date;
-
-    // product keys
-    productName?: string;
-    productImage?: string;
-    productDescription?: string;
-    productPrice?: string;
-    adOnList?: IAdOnItem[];
 
     // bakery/vendor keys
     vendorId?: mongoose.Types.ObjectId;
@@ -60,9 +54,56 @@ export interface IOrder extends Document {
     riderPhoneNumber?: string;
     riderImage?: string;
 
+    // order keys
+    orderStatus?: string;
+    orderNumber?: string;
+    deliveryAddress?: string;
+    deliveryLatitude?: number;
+    deliveryLongitude?: number;
+    orderInstructions?: string;
+    subTotalAmount?: string;
+    deliveryCharges?: string;
+    discountAmount?: string;
+    totalAmount?: string;
+    bookingDate?: string;
+    bookingTime?: string;
+
+    // products
+    products?: IOrderProduct[];
+
     createdAt: Date;
     updatedAt: Date;
 }
+
+const adOnItemSchema = new mongoose.Schema(
+    {
+        name: { type: String, required: true },
+        price: { type: String, required: true },
+    },
+    { _id: false }
+);
+
+const orderProductSchema = new mongoose.Schema(
+    {
+        productId: { type: Schema.Types.ObjectId, required: true, ref: "Products" },
+        productName: { type: String, required: true },
+        productImage: { type: String, required: true },
+        productDescription: { type: String, required: true },
+        originalAmount: { type: String, required: true },
+        discountedAmount: { type: String, required: true },
+        subTotal: { type: String, required: true },
+        finalAmount: { type: String, required: true },
+        discountAmount: { type: String, required: true },
+        discountType: { type: String, required: true },
+        quantity: { type: String, required: true },
+        adOnList: {
+            type: [adOnItemSchema],
+            required: false,
+            default: [],
+        },
+    },
+    { _id: false }
+);
 
 const orderSchema: Schema = new mongoose.Schema({
     // user keys
@@ -74,36 +115,6 @@ const orderSchema: Schema = new mongoose.Schema({
     userAddress: { type: String, required: true },
     userLatitude: { type: Number, required: true },
     userLongitude: { type: Number, required: true },
-
-    // order keys
-    orderStatus: { type: String, required: true },
-    orderNumber: { type: String, required: true },
-    deliveryAddress: { type: String, required: true },
-    deliveryLatitude: { type: Number, required: true },
-    deliveryLongitude: { type: Number, required: true },
-    orderInstructions: { type: String, required: true },
-    subTotalAmount: { type: String, required: true },
-    deliveryCharges: { type: String, required: true },
-    discountAmount: { type: String, required: true },
-    totalAmount: { type: String, required: true },
-
-    // product keys
-    bookingDate: { type: Date },
-    bookingTime: { type: Date },
-    productName: { type: String, required: true },
-    productImage: { type: String, required: true },
-    productDescription: { type: String, required: true },
-    productPrice: { type: String, required: true },
-    adOnList: {
-        type: [
-            {
-                name: { type: String, required: true },
-                price: { type: String, required: true },
-            },
-        ],
-        required: false,
-        default: [],
-    },
 
     // bakery/vendor keys
     vendorId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
@@ -122,11 +133,33 @@ const orderSchema: Schema = new mongoose.Schema({
     deliveryTime: { type: String, required: true },
 
     // rider keys
-    riderId: { type: Schema.Types.ObjectId, required: true, ref: "Rider" },
+    riderId: { type: Schema.Types.ObjectId, required: true, ref: "Riders" },
     riderName: { type: String, required: true },
     riderEmail: { type: String, required: true },
     riderPhoneNumber: { type: String, required: true },
     riderImage: { type: String, required: true },
+
+    // order keys
+    orderStatus: { type: String, required: true },
+    orderNumber: { type: String, required: true },
+    deliveryAddress: { type: String, required: true },
+    deliveryLatitude: { type: Number, required: true },
+    deliveryLongitude: { type: Number, required: true },
+    orderInstructions: { type: String, required: true },
+    subTotalAmount: { type: String, required: true },
+    deliveryCharges: { type: String, required: true },
+    discountAmount: { type: String, required: true },
+    totalAmount: { type: String, required: true },
+
+    bookingDate: { type: String },
+    bookingTime: { type: String },
+
+    // products (array of product objects)
+    products: {
+        type: [orderProductSchema],
+        required: true,
+        default: [],
+    },
 
     createdAt: { type: Date, default: Date },
     updatedAt: { type: Date, default: Date },

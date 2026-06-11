@@ -5,6 +5,21 @@ const adOnItemSchema = z.object({
     price: z.string().min(1),
 });
 
+const productItemSchema = z.object({
+    productId: z.string().min(2),
+    productName: z.string().min(2),
+    productImage: z.string().min(2),
+    productDescription: z.string().min(2),
+    originalAmount: z.string().min(1),
+    discountedAmount: z.string().min(1),
+    subTotal: z.string().min(1),
+    finalAmount: z.string().min(1),
+    discountAmount: z.string().min(1),
+    discountType: z.string().min(1),
+    quantity: z.string().min(1),
+    adOnList: z.array(adOnItemSchema).optional().default([]),
+});
+
 export const createOrderSchema = z.object({
     // user keys
     userId: z.string().min(2),
@@ -26,15 +41,11 @@ export const createOrderSchema = z.object({
     deliveryCharges: z.string().min(2),
     discountAmount: z.string().optional(),
     totalAmount: z.string().min(2),
-    bookingDate: z.string().optional(),
-    bookingTime: z.string().optional(),
+    bookingDate: z.string().min(2),
+    bookingTime: z.string().min(2),
 
-    // product keys
-    productName: z.string().min(2),
-    productImage: z.string().min(2),
-    productDescription: z.string().min(2),
-    productPrice: z.string().min(2),
-    adOnList: z.array(adOnItemSchema).optional().default([]),
+    // product keys as array
+    products: z.array(productItemSchema).min(1),
 
     // bakery/vendor keys
     vendorId: z.string().min(2),
