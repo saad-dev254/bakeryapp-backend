@@ -19,7 +19,8 @@ export const updateBankDetail = asyncHandler(async (req: AuthRequest, res: Respo
 });
 
 export const getAllBankDetails = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const bankDetail = await BankDetailService.getAllBankDetails(req.body?.userId);
+    const { userId } = req.body;
+    const bankDetail = await BankDetailService.getAllBankDetails(userId);
     res.json({ success: true, data: bankDetail });
 });
 

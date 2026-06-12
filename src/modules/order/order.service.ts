@@ -23,57 +23,56 @@ type ProductItem = {
 };
 
 export async function createOrder(
-  dto: { 
-    // user keys
-    userId: string,
-    userName: string,
-    userEmail: string,
-    userPhoneNumber: string,
-    userImage: string,
-    userAddress: string,
-    userLatitude: number,
-    userLongitude: number,
+dto: { 
+  // user keys
+  userId: string,
+  userName: string,
+  userEmail: string,
+  userPhoneNumber: string,
+  userImage: string,
+  userAddress: string,
+  userLatitude: number,
+  userLongitude: number,
 
-    // order keys
-    orderStatus: string,
-    deliveryAddress: string,
-    deliveryLatitude: number,
-    deliveryLongitude: number,
-    orderInstructions: string,
-    subTotalAmount: string,
-    deliveryCharges: string,
-    discountAmount?: string,
-    totalAmount: string,
-    bookingDate: string,
-    bookingTime: string,
+  // bakery/vendor keys
+  vendorId: string,
+  vendorName: string,
+  vendorEmail: string,
+  vendorPhoneNumber: string,
+  bakeryImage: string,
+  bakeryName: string,
+  bakeryAddress: string,
+  bakeryLatitude: number,
+  bakeryLongitude: number,
+  openingTime: string,
+  closingTime: string,
+  bakeryType: string,
+  preOrder: string,
+  deliveryTime: string,
 
-    // product keys (as array now)
-    products: ProductItem[],
+  // rider keys
+  riderId: string,
+  riderName: string,
+  riderEmail: string,
+  riderPhoneNumber: string,
+  riderImage: string,
 
-    // bakery/vendor keys
-    vendorId: string,
-    vendorName: string,
-    vendorEmail: string,
-    vendorPhoneNumber: string,
-    bakeryImage: string,
-    bakeryName: string,
-    bakeryAddress: string,
-    bakeryLatitude: number,
-    bakeryLongitude: number,
-    openingTime: string,
-    closingTime: string,
-    bakeryType: string,
-    preOrder: string,
-    deliveryTime: string,
+  // order keys
+  orderStatus: string,
+  deliveryAddress: string,
+  deliveryLatitude: number,
+  deliveryLongitude: number,
+  orderInstructions: string,
+  subTotalAmount: string,
+  deliveryCharges: string,
+  discountAmount?: string,
+  totalAmount: string,
+  bookingDate: string,
+  bookingTime: string,
 
-    // rider keys
-    riderId: string,
-    riderName: string,
-    riderEmail: string,
-    riderPhoneNumber: string,
-    riderImage: string,
-  }
-) {
+  // product keys (as array now)
+  products: ProductItem[],
+}) {
   // Generate random order number
   const order_number = 'ORD-' + Math.floor(100000 + Math.random() * 900000).toString();
   const order = await Order.create({
@@ -131,24 +130,24 @@ export async function createOrder(
 }
 
 export async function getAllOrders(vendorId: string, riderId: string, userId: string) {
-    let order;
-    if (vendorId) {
-      order = await Order.find({ vendorId })
-    } else if (riderId) {
-      order = await Order.find({ riderId })
-    } else if (userId) {
-      order = await Order.find({ userId })
-    } else {
-      order = await Order.find()
-    }
-    if (!order || order.length === 0) throw new HttpError(404, "No order found.");
-    return order.map(sanitizeOrder);
+  let order;
+  if (vendorId) {
+    order = await Order.find({ vendorId })
+  } else if (riderId) {
+    order = await Order.find({ riderId })
+  } else if (userId) {
+    order = await Order.find({ userId })
+  } else {
+    order = await Order.find()
+  }
+  if (!order || order.length === 0) throw new HttpError(404, "No order found.");
+  return order.map(sanitizeOrder);
 }
 
 export async function getSingleOrder(id: string) {
-    const order = await Order.findById(id);
-    if (!order) throw new HttpError(404, "Order not found");
-    return sanitizeOrder(order);
+  const order = await Order.findById(id);
+  if (!order) throw new HttpError(404, "Order not found");
+  return sanitizeOrder(order);
 }
 
 export async function updateOrder(id: string, dto: { orderStatus?: string }) {

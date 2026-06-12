@@ -5,7 +5,7 @@ export const createBankDetailSchema = z.object({
     ibanNumber: z.string().min(2),
     bankName: z.string().min(2),
     accountHolderName: z.string().min(2),
-    userId: z.string().min(2),
+    // userId: z.string().min(2),
     branchName:  z.string().min(2),
     isPrimary: z.boolean(),
 });
