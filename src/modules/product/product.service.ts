@@ -110,9 +110,7 @@ dto: {
 
   // Get vendor detail for bakeryDetail
   const vendorDetail = await Vendors.findOne({ vendorId: product.vendorId }).populate("vendorId");
-  const bakeryDetail = vendorDetail
-    ? sanitizeBakeryDetail(vendorDetail)
-    : null;
+  const bakeryDetail = vendorDetail ? sanitizeBakeryDetail(vendorDetail) : null;
 
   return sanitizeProduct(product, bakeryDetail);
 }

@@ -1,7 +1,12 @@
 import { HttpError } from "../../utils/httpError";
 import UserAddress from "./userAddress.model";
 
-export async function createUserAddress(userId: string, dto: { address?: string; latitude?: string; longitude?: string }) {
+export async function createUserAddress(userId: string,
+  dto: {
+    address?: string;
+    latitude?: string;
+    longitude?: string
+  }) {
   const addresses = await UserAddress.create({
     userId: userId,
     address: dto.address,
