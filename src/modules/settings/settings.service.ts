@@ -17,7 +17,7 @@ dto: {
 export async function updateSetting(id: string,
 dto: {
   deliveryCharges?: string;
-  radiusInKM?: string
+  radiusInKM?: string;
 }) {
   const settings = await Settings.findById(id);
   if (!settings) throw new HttpError(404, "Settings not found");
@@ -35,7 +35,7 @@ export async function getAllSettings() {
   return settings.map(sanitizeSettings);
 }
 
-export async function getSingleASetting(id: string) {
+export async function getSingleSetting(id: string) {
   const settings = await Settings.findById(id);
   if (!settings) throw new HttpError(404, "Setting not found");
   return sanitizeSettings(settings);
@@ -46,10 +46,10 @@ export async function deleteSetting(id: string) {
   return true;
 }
 
-function sanitizeSettings(adOn: any) {
+function sanitizeSettings(setting: any) {
   return {
-    id: String(adOn._id),
-    deliveryCharges: adOn.deliveryCharges,
-    radiusInKM: adOn.radiusInKM,
+    id: String(setting._id),
+    deliveryCharges: setting.deliveryCharges,
+    radiusInKM: setting.radiusInKM,
   };
 }

@@ -1,7 +1,7 @@
 import { HttpError } from "../../utils/httpError";
 import { User } from "../auth/user.model";
-import BankDetail from "../bankDetail/bankDetail.model";
 import Riders from "./rider.model";
+import BankDetail from "../bankDetail/bankDetail.model";
 
 export async function createRider(riderId: string,
 dto: { 
@@ -112,11 +112,7 @@ dto: {
   return sanitizeRider(updatedRider);
 }
 
-export async function getAllRiders(
-  approvalStatus?: string,
-  page?: number,
-  limit?: number
-) {
+export async function getAllRiders(approvalStatus?: string, page?: number, limit?: number) {
   // Default values for page & limit
   const resolvedPage = page && page > 0 ? page : 1;
   const resolvedLimit = limit && limit > 0 ? limit : 10;

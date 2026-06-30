@@ -22,9 +22,9 @@ export const getAllSettings = asyncHandler(async (req: AuthRequest, res: Respons
     res.json({ success: true, data: settings });
 });
 
-export const getSingleASetting = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const getSingleSetting = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.body;
-    const settings = await SettingsService.getSingleASetting(id);
+    const settings = await SettingsService.getSingleSetting(id);
     res.json({ success: true, data: settings });
 });
 

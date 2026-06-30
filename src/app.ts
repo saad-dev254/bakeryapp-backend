@@ -35,8 +35,9 @@ export function createApp() {
 
   app.use(
     cors({
-      origin: env.CORS_ORIGIN === "*" ? true : env.CORS_ORIGIN,
-      credentials: true
+      origin: "*",
+      // origin: env.CORS_ORIGIN === "*" ? true : env.CORS_ORIGIN,
+      // credentials: true
     })
   );
 
