@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProduct = exports.getSingleProduct = exports.getAllProducts = exports.updateProduct = exports.createProduct = void 0;
+exports.getNearbyBakeryProductsByCategory = exports.getNearbyBakeryProducts = exports.deleteProduct = exports.getSingleProduct = exports.getAllProducts = exports.updateProduct = exports.createProduct = void 0;
 const asyncHandler_1 = require("../../utils/asyncHandler");
 const ProductService = __importStar(require("./product.service"));
 const product_validation_1 = require("./product.validation");
@@ -70,4 +70,17 @@ exports.deleteProduct = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const { id } = req.body;
     await ProductService.deleteProduct(id);
     res.json({ success: true, message: "Product deleted" });
+});
+exports.getNearbyBakeryProducts = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const latitude = req.query.latitude ? req.query.latitude : undefined;
+    const longitude = req.query.longitude ? req.query.longitude : undefined;
+    const products = await ProductService.getNearbyBakeryProducts(Number(latitude), Number(longitude));
+    res.json({ success: true, data: products });
+});
+exports.getNearbyBakeryProductsByCategory = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const latitude = req.query.latitude ? req.query.latitude : undefined;
+    const longitude = req.query.longitude ? req.query.longitude : undefined;
+    const categoryId = req.query.categoryId ? req.query.categoryId : undefined;
+    const products = await ProductService.getNearbyBakeryProductsByCategory(Number(latitude), Number(longitude), String(categoryId));
+    res.json({ success: true, data: products });
 });

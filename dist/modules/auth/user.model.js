@@ -46,11 +46,15 @@ const UserSchema = new mongoose_1.Schema({
     isApproved: { type: Boolean, default: false },
     passwordHash: { type: String, required: true },
     passwordChangedAt: { type: Date },
+    fcmToken: { type: String },
+    deviceType: { type: String },
     refreshTokenHash: { type: String },
     resetPasswordTokenHash: { type: String },
     resetPasswordExpiresAt: { type: Date },
     // createdBy: { type: Schema.Types.ObjectId, ref: "User" }
     createdBy: { type: String, required: false, trim: true },
+    createdAt: { type: Date, default: Date },
+    updatedAt: { type: Date, default: Date },
 }, { timestamps: true });
 // UserSchema.index({ email: 1 });
 exports.User = mongoose_1.default.model("User", UserSchema);

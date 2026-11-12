@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const categorySchema = new mongoose_1.default.Schema({
     categoryName: { type: String, required: true },
-    created_at: { type: Date, default: Date },
-    updated_at: { type: Date, default: Date },
+    createdAt: { type: Date, default: Date },
+    updatedAt: { type: Date, default: Date },
 });
 const Category = mongoose_1.default.model("Category", categorySchema);
 exports.default = Category;

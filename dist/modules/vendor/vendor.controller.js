@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteVendor = exports.getSingleVendor = exports.getAllVendors = exports.updateVendor = exports.createVendor = void 0;
+exports.deleteVendor = exports.getSingleVendor = exports.getVendorByVendorID = exports.getAllVendors = exports.updateVendor = exports.createVendor = void 0;
 const asyncHandler_1 = require("../../utils/asyncHandler");
 const VendorService = __importStar(require("./vendor.service"));
 const vendor_validation_1 = require("./vendor.validation");
@@ -71,9 +71,32 @@ exports.createVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     res.status(201).json({ success: true, message: `Vendor created`, data: vendor });
 });
 exports.updateVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const uploadedFile = req.file;
-    if (uploadedFile) {
-        req.body.bakeryImage = `/uploads/vendors/${uploadedFile.filename}`;
+    const files = req.files;
+    const bakeryLogo = files?.bakeryLogo?.[0];
+    const bakeryImage = files?.bakeryImage?.[0];
+    const vendorCnicFrontImage = files?.vendorCnicFrontImage?.[0];
+    const vendorCnicBackImage = files?.vendorCnicBackImage?.[0];
+    const ntnImage = files?.ntnImage?.[0];
+    const foodLicenseImage = files?.foodLicenseImage?.[0];
+    const kitchenImageFiles = files?.kitchenImages || [];
+    if (bakeryLogo)
+        req.body.bakeryLogo = `/uploads/vendors/${bakeryLogo.filename}`;
+    if (bakeryImage)
+        req.body.bakeryImage = `/uploads/vendors/${bakeryImage.filename}`;
+    if (vendorCnicFrontImage)
+        req.body.vendorCnicFrontImage = `/uploads/vendors/${vendorCnicFrontImage.filename}`;
+    if (vendorCnicBackImage)
+        req.body.vendorCnicBackImage = `/uploads/vendors/${vendorCnicBackImage.filename}`;
+    if (ntnImage)
+        req.body.ntnImage = `/uploads/vendors/${ntnImage.filename}`;
+    if (foodLicenseImage)
+        req.body.foodLicenseImage = `/uploads/vendors/${foodLicenseImage.filename}`;
+    // Handle kitchenImages (multiple images: 0, 1, or many)
+    if (kitchenImageFiles.length > 0) {
+        req.body.kitchenImages = kitchenImageFiles.map(img => `/uploads/vendors/${img.filename}`);
+    }
+    else {
+        req.body.kitchenImages = [];
     }
     const { id } = req.body;
     const dto = vendor_validation_1.updateVendorSchema.parse(req.body);
@@ -81,8 +104,13 @@ exports.updateVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     res.json({ success: true, message: "Profile updated", data: vendor });
 });
 exports.getAllVendors = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const vendors = await VendorService.getAllVendors(req.body?.isApproved, req.body?.page, req.body?.limit);
+    const vendors = await VendorService.getAllVendors(req.body?.approvalStatus, req.body?.page, req.body?.limit);
     res.json({ success: true, data: vendors });
+});
+exports.getVendorByVendorID = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { user_id } = req.body;
+    const vendor = await VendorService.getVendorByVendorID(user_id);
+    res.json({ success: true, data: vendor });
 });
 exports.getSingleVendor = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const { id } = req.body;

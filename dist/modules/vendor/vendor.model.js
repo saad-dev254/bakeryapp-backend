@@ -57,11 +57,11 @@ const vendorsSchema = new mongoose_1.default.Schema({
     preOrder: { type: String, required: true },
     deliveryTime: { type: String, required: true },
     kitchenImages: [{ type: String }], // Field for multiple kitchen images
-    status: { type: String, default: "online" },
+    isOnline: { type: String, required: true },
     approvalStatus: { type: String, required: true, default: "pending" },
-    approvalReason: { type: String, required: true, default: "Pending approval" },
-    created_at: { type: Date, default: Date.now },
-    updated_at: { type: Date, default: Date.now }
+    rejectReason: { type: String, default: "" },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
 });
 const Vendors = mongoose_1.default.model("Vendors", vendorsSchema);
 exports.default = Vendors;

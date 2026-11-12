@@ -5,7 +5,7 @@ export const loginSchema = z.object({
   phoneNumber: z.string().min(11).optional(),
   password: z.string().min(6),
   fcmToken: z.string().optional(),
-  deviceType: z.string().min(2),
+  deviceType: z.string().optional(),
   role: z.enum(["ADMIN", "USER", "VENDOR", "RIDER"])
 });
 

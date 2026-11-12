@@ -6,6 +6,8 @@ exports.loginSchema = zod_1.z.object({
     email: zod_1.z.string().email().optional(),
     phoneNumber: zod_1.z.string().min(11).optional(),
     password: zod_1.z.string().min(6),
+    fcmToken: zod_1.z.string().optional(),
+    deviceType: zod_1.z.string().min(2),
     role: zod_1.z.enum(["ADMIN", "USER", "VENDOR", "RIDER"])
 });
 exports.adminCreateUserSchema = zod_1.z.object({

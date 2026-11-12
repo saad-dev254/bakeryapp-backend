@@ -37,7 +37,7 @@ async function createUser(dto) {
         isProfileComplete: dto.role === "VENDOR" || dto.role === "RIDER" ? false : true,
         isApproved: dto.role === "VENDOR" || dto.role === "RIDER" ? false : true,
         passwordHash,
-        createdBy: "self"
+        createdBy: "self",
     });
     return sanitizeUser(user);
 }
@@ -72,7 +72,6 @@ async function adminCreateUser(adminId, dto) {
     return sanitizeUser(user);
 }
 async function login(dto) {
-    // const user = await User.findOne({ phoneNumber: dto.phoneNumber.trim(), role: dto.role });
     let user;
     if (dto.email && dto.role === "ADMIN") {
         user = await user_model_1.User.findOne({ email: dto.email?.toLowerCase(), role: dto.role });
@@ -95,6 +94,19 @@ async function login(dto) {
         if (!ok)
             throw new httpError_1.HttpError(401, "Invalid phone number, role, or password");
     }
+    // Check and update fcmToken per instructions
+    if (dto.fcmToken) {
+        // If there is no fcmToken in the db, add it
+        if (!user.fcmToken) {
+            user.fcmToken = dto.fcmToken;
+        }
+        // If fcmToken exists but does not match the one provided, update it
+        else if (user.fcmToken !== dto.fcmToken) {
+            user.fcmToken = dto.fcmToken;
+        }
+        // else, already matches, do not update
+    }
+    user.deviceType = dto.deviceType;
     const payload = { sub: String(user._id), role: user.role, email: user.email };
     const accessToken = (0, auth_tokens_1.signAccessToken)(payload);
     const refreshToken = (0, auth_tokens_1.signRefreshToken)(payload);
@@ -199,6 +211,8 @@ function sanitizeUser(user) {
         userImage: user.userImage,
         phoneNumber: user.phoneNumber,
         role: user.role,
+        fcmToken: user.fcmToken,
+        deviceType: user.deviceType,
         isActive: user.isActive,
         isProfileComplete: user.isProfileComplete,
         isApproved: user.isApproved,

@@ -22,22 +22,21 @@ const vendors_routes_1 = require("./modules/vendor/vendors.routes");
 const product_routes_1 = require("./modules/product/product.routes");
 const category_routes_1 = require("./modules/category/category.routes");
 const adOns_routes_1 = require("./modules/adOns/adOns.routes");
-const shipment_routes_1 = require("./modules/shipment/shipment.routes");
-const country_routes_1 = require("./modules/country/country.routes");
-const delivery_routes_1 = require("./modules/deliver-services/delivery.routes");
-const city_routes_1 = require("./modules/city/city.routes");
-// ✅ JSON swagger import
-const swagger_json_1 = __importDefault(require("./docs/swagger.json"));
 const order_routes_1 = require("./modules/order/order.routes");
 const rider_routes_1 = require("./modules/rider/rider.routes");
 const userAddress_routes_1 = require("./modules/userAddress/userAddress.routes");
+const bankDetail_routes_1 = require("./modules/bankDetail/bankDetail.routes");
+const settings_routes_1 = require("./modules/settings/settings.routes");
+// ✅ JSON swagger import
+const swagger_json_1 = __importDefault(require("./docs/swagger.json"));
 function createApp() {
     const app = (0, express_1.default)();
     app.set("trust proxy", 1);
     app.use((0, pino_http_1.default)({ logger: logger_1.logger }));
     app.use((0, cors_1.default)({
-        origin: env_1.env.CORS_ORIGIN === "*" ? true : env_1.env.CORS_ORIGIN,
-        credentials: true
+        origin: "*",
+        // origin: env.CORS_ORIGIN === "*" ? true : env.CORS_ORIGIN,
+        // credentials: true
     }));
     // Allow frontend to load images/files served from /uploads without CORP blocking.
     app.use((0, helmet_1.default)({
@@ -61,7 +60,7 @@ function createApp() {
     app.use("/docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_json_1.default));
     app.use("/api/health", health_routes_1.healthRouter);
     app.use("/api/auth", auth_routes_1.authRouter);
-    app.use("/api", vendors_routes_1.vendorRouter, rider_routes_1.riderRouter, product_routes_1.productRouter, category_routes_1.categoryRouter, adOns_routes_1.adOnRouter, order_routes_1.orderRouter, userAddress_routes_1.addressRouter, shipment_routes_1.shipmentRouter, country_routes_1.countryRouter, delivery_routes_1.deliveryRouter, city_routes_1.cityRouter);
+    app.use("/api", vendors_routes_1.vendorRouter, rider_routes_1.riderRouter, product_routes_1.productRouter, category_routes_1.categoryRouter, adOns_routes_1.adOnRouter, order_routes_1.orderRouter, userAddress_routes_1.addressRouter, bankDetail_routes_1.bankDetailRouter, settings_routes_1.settingRouter);
     app.use(notFound_1.notFound);
     app.use(errorHandler_1.errorHandler);
     return app;
