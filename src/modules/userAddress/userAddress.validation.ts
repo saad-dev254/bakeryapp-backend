@@ -5,10 +5,12 @@ export const createUserAddressSchema = z.object({
     address: z.string().min(2),
     latitude: z.string().min(2),
     longitude: z.string().min(2),
+    addressType: z.string().min(2),
 });
 
 export const updateUserAddressSchema = z.object({
     address: z.string().min(2).optional(),
     latitude: z.string().min(2).optional(),
     longitude: z.string().min(2).optional(),
+    addressType: z.string().min(2).optional(),
 });

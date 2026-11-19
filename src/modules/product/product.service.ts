@@ -173,6 +173,8 @@ export async function deleteProduct(id: string) {
 export async function getNearbyBakeryProducts(latitude: number, longitude: number) {
   const vendorsWithinRadius = await getVendorsWithinRadius(latitude, longitude);
 
+  console.log("vendorsWithinRadius =====> ", vendorsWithinRadius);
+
   if (vendorsWithinRadius.length === 0) {
     throw new HttpError(404, "No bakery available in your location");
   }
@@ -181,12 +183,15 @@ export async function getNearbyBakeryProducts(latitude: number, longitude: numbe
     v.vendorId ? v.vendorId.toString() : ""
   ).filter(Boolean);
 
+  console.log("vendorIds =====> ", vendorIds);
+
   if (vendorIds.length === 0) {
     throw new HttpError(404, "No bakery available in your location");
   }
 
   // Fetch all products for found vendor IDs
   const products = await Products.find({ vendorId: { $in: vendorIds } }).populate("categoryId", "categoryName");
+  console.log("products =====> ", products);
 
   // Organize products into home and shop bakeryTypes
   const homeBaseBakeries: any[] = [];
@@ -199,6 +204,7 @@ export async function getNearbyBakeryProducts(latitude: number, longitude: numbe
         v.vendorId && v.vendorId.toString() === product.vendorId.toString()
       );
       let fullVendor = vendor;
+      console.log("fullVendor =====> ", fullVendor);
       if (fullVendor && !fullVendor.vendorId) {
         const found = await Vendors.findOne({ vendorId: product.vendorId }).populate("vendorId");
         fullVendor = found === null ? undefined : found;
@@ -211,6 +217,49 @@ export async function getNearbyBakeryProducts(latitude: number, longitude: numbe
         homeBaseBakeries.push(prodObj);
       } else if (fullVendor && fullVendor.bakeryType && fullVendor.bakeryType.toLowerCase() === "shop") {
         shopBaseBakeries.push(prodObj);
+      }
+    })
+  );
+
+  return { homeBaseBakeries, shopBaseBakeries };
+}
+
+// Find bakeries within a provided km radius of provided user lat/lng
+export async function getNearbyBakeries(latitude: number, longitude: number) {
+  const vendorsWithinRadius = await getVendorsWithinRadius(latitude, longitude);
+
+  console.log("vendorsWithinRadius =====> ", vendorsWithinRadius);
+
+  if (!vendorsWithinRadius || vendorsWithinRadius.length === 0) {
+    throw new HttpError(404, "No bakery available in your location");
+  }
+
+  const homeBaseBakeries: any[] = [];
+  const shopBaseBakeries: any[] = [];
+
+  await Promise.all(
+    vendorsWithinRadius.map(async (vendor: any) => {
+      let fullVendor = vendor;
+
+      // Populate vendor details if required
+      if (!fullVendor.bakeryType) {
+        const found = await Vendors.findOne({
+          vendorId: vendor.vendorId,
+        }).populate("vendorId");
+
+        fullVendor = found || undefined;
+      }
+
+      if (!fullVendor) return;
+
+      const bakeryDetail = sanitizeBakeryDetail(fullVendor);
+
+      const bakeryType = fullVendor.bakeryType?.toLowerCase();
+
+      if (bakeryType === "home") {
+        homeBaseBakeries.push(bakeryDetail);
+      } else if (bakeryType === "shop") {
+        shopBaseBakeries.push(bakeryDetail);
       }
     })
   );

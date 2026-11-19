@@ -46,9 +46,25 @@ export const deleteProduct = asyncHandler(async (req: AuthRequest, res: Response
 export const getNearbyBakeryProducts = asyncHandler(async (req: AuthRequest, res: Response) => {
     const latitude = req.query.latitude ? req.query.latitude : undefined;
     const longitude = req.query.longitude ? req.query.longitude : undefined;
+
+    console.log("latitude ====> ", latitude);
+    console.log("longitude ====> ", longitude);
     
     const products = await ProductService.getNearbyBakeryProducts(Number(latitude), Number(longitude));
+    console.log("products ====> ", products);
     res.json({ success: true, data: products });
+});
+
+export const getNearbyBakeries = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const latitude = req.query.latitude ? req.query.latitude : undefined;
+    const longitude = req.query.longitude ? req.query.longitude : undefined;
+
+    console.log("latitude ====> ", latitude);
+    console.log("longitude ====> ", longitude);
+
+    const bakeries = await ProductService.getNearbyBakeries(Number(latitude), Number(longitude));
+    console.log("bakeries ====> ", bakeries);
+    res.json({ success: true, data: bakeries });
 });
 
 export const getNearbyBakeryProductsByCategory = asyncHandler(async (req: AuthRequest, res: Response) => {

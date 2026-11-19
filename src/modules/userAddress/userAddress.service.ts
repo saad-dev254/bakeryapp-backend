@@ -6,12 +6,14 @@ export async function createUserAddress(userId: string,
     address?: string;
     latitude?: string;
     longitude?: string
+    addressType?: string;
   }) {
   const addresses = await UserAddress.create({
     userId: userId,
     address: dto.address,
     latitude: dto.latitude,
     longitude: dto.longitude,
+    addressType: dto.addressType,
   });
 
   return sanitizeUserAddress(addresses);
@@ -34,13 +36,14 @@ export async function getSingleUserAddress(id: string) {
   return sanitizeUserAddress(addresses);
 }
 
-export async function updateUserAddress(id: string, dto: { address?: string; latitude?: string; longitude?: string }) {
+export async function updateUserAddress(id: string, dto: { address?: string; latitude?: string; longitude?: string; addressType?: string; }) {
   const address = await UserAddress.findById(id);
   if (!address) throw new HttpError(404, "Address not found");
 
   if (dto.address) address.address = dto.address;
   if (dto.latitude) address.latitude = dto.latitude;
   if (dto.longitude) address.longitude = dto.longitude;
+  if (dto.addressType) address.addressType = dto.addressType;
 
   await address.save();
   return sanitizeUserAddress(address);
@@ -58,5 +61,6 @@ function sanitizeUserAddress(address: any) {
     address: address.address,
     latitude: address.latitude,
     longitude: address.longitude,
+    addressType: address.addressType,
   };
 }
